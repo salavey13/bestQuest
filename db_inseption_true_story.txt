@@ -1,0 +1,372 @@
+Sure! Here's an example of how to use a connection pool for SQLite database connections in Python:
+
+```
+import sqlite3
+from sqlite3 import Connection, Cursor
+from sqlite3.dbapi2 import connect
+
+from queue import Queue, Empty
+from functools import wraps
+from threading import Lock, Thread
+
+# Connection pool class
+class ConnectionPool:
+    def __init__(self, max_connections):
+        self.max_connections = max_connections
+        self._connections = Queue(maxsize=max_connections)
+        self._lock = Lock()
+
+    # Helper function to create new database connection
+    def _create_connection(self):
+        return connect("your_database.db")
+
+    # Context manager to handle acquiring and releasing connections
+    def get_connection(self) -> Connection:
+        connection = self._connections.get(block=True)
+        self._connections.put(connection)
+        return connection
+
+    # Decorator to automatically acquire and release connections for functions
+    def with_connection(self, f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            connection = self.get_connection()
+            try:
+                return f(connection, *args, **kwargs)
+            finally:
+                pass  # You can add any cleanup operations here before releasing the connection
+        return wrapper
+
+    def _initialize_pool(self):
+        with self._lock:
+            while not self._connections.full():
+                connection = self._create_connection()
+                self._connections.put(connection)
+
+    def start(self):
+        thread = Thread(target=self._initialize_pool)
+        thread.start()
+
+    def close(self):
+        with self._lock:
+            while not self._connections.empty():
+                connection = self._connections.get()
+                connection.close()
+
+# Define your functions that will use the connection pool
+@connection_pool.with_connection
+def get_data(connection: Connection):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM your_table")
+    data = cursor.fetchall()
+    cursor.close()
+    return data
+
+@connection_pool.with_connection
+def insert_data(connection: Connection, data):
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO your_table VALUES (?)", (data,))
+    connection.commit()
+    cursor.close()
+
+# Initialize connection pool with maximum number of connections
+connection_pool = ConnectionPool(max_connections=5)
+connection_pool.start()
+
+# Example usage
+data = get_data()
+print(data)
+
+insert_data("New data")
+
+# Close the connection pool when done
+connection_pool.close()
+
+```
+
+In this example, we define a
+
+```
+ConnectionPool
+```
+
+class that handles creating and managing the SQLite connections. The
+
+```
+ConnectionPool
+```
+
+class has methods to acquire and release connections and also a decorator
+
+```
+with_connection
+```
+
+that automatically acquires a connection for the decorated functions. The pool is initialized with a maximum number of connections, and a separate thread initializes the pool by creating and adding connections to the queue.
+
+You can use the
+
+```
+with_connection
+```
+
+decorator to wrap your database operations functions, and they will automatically acquire and release connections from the pool.
+
+Note: Make sure to replace
+
+```
+"your_database.db"
+```
+
+with the actual path or name of your SQLite database file, and
+
+```
+"your_table"
+```
+
+with the actual table name in your database.
+Assuming i have following python component in a subfolder  called "db" in my python project, please create a python main function that usees function :insert_data from main
+
+import sqlite3 
+from sqlite3 import Connection, Cursor 
+from sqlite3.dbapi2 import connect 
+ 
+from queue import Queue, Empty 
+from functools import wraps 
+from threading import Lock, Thread 
+ 
+# Connection pool class 
+class ConnectionPool: 
+    def __init__(self, max_connections): 
+        self.max_connections = max_connections 
+        self._connections = Queue(maxsize=max_connections) 
+        self._lock = Lock() 
+ 
+    # Helper function to create new database connection 
+    def _create_connection(self): 
+        return connect("your_database.db") 
+ 
+    # Context manager to handle acquiring and releasing connections 
+    def get_connection(self) -> Connection: 
+        connection = self._connections.get(block=True) 
+        self._connections.put(connection) 
+        return connection 
+ 
+    # Decorator to automatically acquire and release connections for functions 
+    def with_connection(self, f): 
+        @wraps(f) 
+        def wrapper(*args, **kwargs): 
+            connection = self.get_connection() 
+            try: 
+                return f(connection, *args, **kwargs) 
+            finally: 
+                pass  # You can add any cleanup operations here before releasing the connection 
+        return wrapper 
+ 
+    def _initialize_pool(self): 
+        with self._lock: 
+            while not self._connections.full(): 
+                connection = self._create_connection() 
+                self._connections.put(connection) 
+ 
+    def start(self): 
+        thread = Thread(target=self._initialize_pool) 
+        thread.start() 
+ 
+    def close(self): 
+        with self._lock: 
+            while not self._connections.empty(): 
+                connection = self._connections.get() 
+                connection.close() 
+ 
+# Define your functions that will use the connection pool 
+@connection_pool.with_connection 
+def get_data(connection: Connection): 
+    cursor = connection.cursor() 
+    cursor.execute("SELECT * FROM your_table") 
+    data = cursor.fetchall() 
+    cursor.close() 
+    return data 
+ 
+@connection_pool.with_connection 
+def insert_data(connection: Connection, data): 
+    cursor = connection.cursor() 
+    cursor.execute("INSERT INTO your_table VALUES (?)", (data,)) 
+    connection.commit() 
+    cursor.close() 
+ 
+# Initialize connection pool with maximum number of connections 
+connection_pool = ConnectionPool(max_connections=5) 
+connection_pool.start() 
+ 
+# Example usage 
+data = get_data() 
+print(data) 
+ 
+insert_data("New data") 
+ 
+# Close the connection pool when done 
+connection_pool.close()
+Sure! Here's the main function that uses the insert_data function from your db component:
+
+import db
+
+def main():
+    # Initialize connection pool with maximum number of connections
+    connection_pool = db.ConnectionPool(max_connections=5)
+    connection_pool.start()
+
+    # Example usage
+    data = db.get_data()
+    print(data)
+
+    db.insert_data("New data")
+
+    # Close the connection pool when done
+    connection_pool.close()
+
+if __name__ == "__main__":
+    main()
+
+
+In this code, we import the db module that contains the ConnectionPool class and the insert_data function. We then define the main function, where we initialize the connection pool, retrieve data using the get_data function, print the data, and insert new data using the insert_data function. Finally, we close the connection pool.
+
+Note that we assume the db.py file is located in a subfolder called "db" in your Python project. Make sure to adjust the import statement if the file is located in a different location.
+Exception has occurred: AttributeError 
+module 'db' has no attribute 'ConnectionPool' 
+  File "C:\WORK\1_July_webAndTGBot\oneSitePls\app.py", line 484, in main 
+    connection_pool = db.ConnectionPool(max_connections=5) 
+                      ^^^^^^^^^^^^^^^^^ 
+  File "C:\WORK\1_July_webAndTGBot\oneSitePls\app.py", line 553, in <module> 
+    main() 
+AttributeError: module 'db' has no attribute 'ConnectionPool'
+I apologize for the confusion. It seems that the ConnectionPool class is not accessible from the db module. To fix this issue, you need to make sure that the ConnectionPool class is imported correctly in your db module.
+
+Please ensure that the ConnectionPool class is defined in the db.py file and that it is imported correctly in the main script. Here's an updated version of the main script:
+
+from db import ConnectionPool, insert_data, get_data
+
+def main():
+    # Initialize connection pool with maximum number of connections
+    connection_pool = ConnectionPool(max_connections=5)
+    connection_pool.start()
+
+    # Example usage
+    data = get_data()
+    print(data)
+
+    insert_data("New data")
+
+    # Close the connection pool when done
+    connection_pool.close()
+
+if __name__ == "__main__":
+    main()
+
+
+Make sure that the db.py file is in the correct location and that it contains the ConnectionPool class definition. Additionally, ensure that the insert_data and get_data functions are defined in the db.py file as well.
+Exception has occurred: NameError 
+name 'connection_pool' is not defined 
+  File "C:\WORK\1_July_webAndTGBot\oneSitePls\db\db.py", line 53, in <module> 
+    @connection_pool.with_connection 
+     ^^^^^^^^^^^^^^^ 
+  File "C:\WORK\1_July_webAndTGBot\oneSitePls\app.py", line 2, in <module> 
+    import db.db 
+NameError: name 'connection_pool' is not defined
+I apologize for the confusion. It seems that there is an issue with the organization of your code. Based on the error message you provided, it looks like you are trying to access the connection_pool variable from the db module, but it is not defined in that scope.
+
+To resolve this issue, you need to make sure that the connection_pool variable is accessible in the db module. One way to achieve this is by passing the connection_pool instance as an argument to the with_connection decorator.
+
+Here's an updated version of your code:
+
+import sqlite3 
+from sqlite3 import Connection, Cursor 
+from sqlite3.dbapi2 import connect 
+ 
+from queue import Queue, Empty 
+from functools import wraps 
+from threading import Lock, Thread 
+ 
+# Connection pool class 
+class ConnectionPool: 
+    def __init__(self, max_connections): 
+        self.max_connections = max_connections 
+        self._connections = Queue(maxsize=max_connections) 
+        self._lock = Lock() 
+ 
+    # Helper function to create new database connection 
+    def _create_connection(self): 
+        return connect("your_database.db") 
+ 
+    # Context manager to handle acquiring and releasing connections 
+    def get_connection(self) -> Connection: 
+        connection = self._connections.get(block=True) 
+        self._connections.put(connection) 
+        return connection 
+ 
+    # Decorator to automatically acquire and release connections for functions 
+    def with_connection(self, f): 
+        @wraps(f) 
+        def wrapper(connection_pool, *args, **kwargs): # Adding the connection_pool argument here
+            connection = connection_pool.get_connection() 
+            try: 
+                return f(connection, *args, **kwargs) 
+            finally: 
+                pass  # You can add any cleanup operations here before releasing the connection 
+        return wrapper 
+ 
+    def _initialize_pool(self): 
+        with self._lock: 
+            while not self._connections.full(): 
+                connection = self._create_connection() 
+                self._connections.put(connection) 
+ 
+    def start(self): 
+        thread = Thread(target=self._initialize_pool) 
+        thread.start() 
+ 
+    def close(self): 
+        with self._lock: 
+            while not self._connections.empty(): 
+                connection = self._connections.get() 
+                connection.close() 
+ 
+# Define your functions that will use the connection pool 
+@connection_pool.with_connection 
+def get_data(connection: Connection): 
+    cursor = connection.cursor() 
+    cursor.execute("SELECT * FROM your_table") 
+    data = cursor.fetchall() 
+    cursor.close() 
+    return data 
+ 
+@connection_pool.with_connection 
+def insert_data(connection: Connection, data): 
+    cursor = connection.cursor() 
+    cursor.execute("INSERT INTO your_table VALUES (?)", (data,)) 
+    connection.commit() 
+    cursor.close() 
+ 
+# Initialize connection pool with maximum number of connections 
+connection_pool = ConnectionPool(max_connections=5) 
+connection_pool.start() 
+ 
+# Example usage 
+data = get_data() 
+print(data) 
+ 
+insert_data("New data") 
+ 
+# Close the connection pool when done 
+connection_pool.close()
+
+
+In this updated code, I have modified the with_connection decorator to include the connection_pool argument. This allows the decorator to access the connection_pool instance when wrapping the function. Additionally, make sure that your main script imports the necessary modules correctly and that the db.py file is in the correct location.
+Exception has occurred: NameError 
+name 'connection_pool' is not defined 
+  File "C:\WORK\1_July_webAndTGBot\oneSitePls\db\db.py", line 54, in <module> 
+    @connection_pool.with_connection 
+    ^^^^^^^^^^^^^^^ 
+  File "C:\WORK\1_July_webAndTGBot\oneSitePls\app.py", line 2, in <module> 
+    from db.db import ConnectionPool, insert_data, get_data 
+NameError: name 'connection_pool' is not defined
