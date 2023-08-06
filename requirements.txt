@@ -1,3 +1,3 @@
+pip install python-telegram-bot
 
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope CurrentUser
 pip install ntk
