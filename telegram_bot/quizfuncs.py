@@ -5,14 +5,14 @@ import greetings
 import data_scraping.search_helper
 from sqlite3 import Connection
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
-
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext, ConversationHandler
+ANSWER, CONTINUE = range(2)
 
 # Handler for the "/quiz {skill_name}" command
 async def start_quiz(update: Update, context: CallbackContext, connection_pool: ConnectionPool):
     # Extract the skill_name from the command
     if len(update.message.text.split()) == 1:
-        return
+        return ConversationHandler.END
     skill_name = update.message.text.split()[1]
     # Find the skill_id based on the skill_name (assuming you have a 'skills' table)
     skill_id = get_skill_id_by_skill_name(connection_pool, skill_name)
@@ -40,15 +40,18 @@ async def start_quiz(update: Update, context: CallbackContext, connection_pool: 
         # Send the question text with multiple choice options to the user
         reply_markup = create_reply_menu(a, fa)
         await update.message.reply_text(question, reply_markup=reply_markup)
+        return ANSWER
 
     else:
         await update.message.reply_text(f"Skill '{skill_name}' not found. Please enter a valid skill name.")
+        return ConversationHandler.END
 
 # Handler for the "/quiz {skill_name}" command
 async def start_rating_quiz(update: Update, context: CallbackContext, connection_pool: ConnectionPool):
     # Extract the skill_name from the command
     if len(update.message.text.split()) == 1:
-        return
+        return ConversationHandler.END
+    
     skill_name = update.message.text.split()[1]
     # Find the skill_id based on the skill_name (assuming you have a 'skills' table)
     skill_id = get_skill_id_by_skill_name(connection_pool, skill_name)
@@ -72,8 +75,10 @@ async def start_rating_quiz(update: Update, context: CallbackContext, connection
         reply_markup = create_reply_menu(a_en, fa_en)
         await update.message.reply_text(question, reply_markup=reply_markup)
 
+        return ANSWER
     else:
         await update.message.reply_text(f"Skill '{skill_name}' not found. Please enter a valid skill name.")
+        return ConversationHandler.END
 
 # Handler for handling user's response
 async def handle_answer(update: Update, context: CallbackContext, connection_pool: ConnectionPool):
@@ -126,6 +131,7 @@ async def handle_answer(update: Update, context: CallbackContext, connection_poo
             else :
                 reply_markup = create_reply_menu(a_en, fa_en) 
             await update.message.reply_text(question, reply_markup=reply_markup)
+            return ANSWER
 
         elif 'clue_given' not in context.user_data:
             # Incorrect answer, give a clue
@@ -140,7 +146,8 @@ async def handle_answer(update: Update, context: CallbackContext, connection_poo
             else :
                 context.user_data['rating'] -= 12
             #await update.message.reply_text(f"Sorry, that's incorrect. Here's a clue: {clue}")
-
+            
+            return ANSWER
         else:
             # Incorrect answer, give video description and URL with a button to continue
             context.user_data.pop('clue_given', None)
@@ -160,6 +167,7 @@ async def handle_answer(update: Update, context: CallbackContext, connection_poo
                                       f"{video_description}\n"
                                       f"{video_url}")#,
                                       #reply_markup=ReplyKeyboardMarkup([['Продолжить','Continue']], one_time_keyboard=True))
+            return CONTINUE
 
 # Handler for handling the "Continue" button after sending the video details
 async def handle_continue(update: Update, context: CallbackContext, connection_pool: ConnectionPool):
@@ -181,6 +189,7 @@ async def handle_continue(update: Update, context: CallbackContext, connection_p
     else :
         reply_markup = create_reply_menu(a_en, fa_en)
     await update.message.reply_text(question, reply_markup=reply_markup)
+    return ANSWER
 
 # Send engagement messages
 async def send_engagement_message(update: Update):
@@ -194,6 +203,7 @@ async def send_engagement_message(update: Update):
     #  ]
     await update.message.reply_text(greetings.translations.get("relax"+update._effective_user.language_code, greetings.translations.get("relaxen")))
     await update.message.reply_text(greetings.translations.get("relax2"+update._effective_user.language_code, greetings.translations.get("relax2en")))
+    return ANSWER
 
 # Create inline reply menu for question options
 def create_reply_menu(a, fa):
@@ -226,6 +236,8 @@ async def show_available_skills(update: Update, context: CallbackContext):
     # cursor.execute('SELECT skill_name FROM skills')
     # all_skills = cursor.fetchall()
     # skill_list = '\n'.join([skill[0] for skill in all_skills])
+
+
     
 #!!await update.message.reply_text(f"Available skills: UI)\n")#{skill_list}")
     await update.message.reply_text(f"Доступные скилы: UI\n")#{skill_list}")

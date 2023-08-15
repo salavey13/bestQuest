@@ -1,5 +1,6 @@
 import db.db #ConnectionPool, insert_data, get_data, get_random_question_for_skill
 from db.db import ConnectionPool, with_connection
+from ticketfuncs import DESCRIPTION, PRICE_CAP, URGENCY, EXAMPLE_LINK, AUTOMATION_SHORTCUT, ANSWER, CONTINUE, estcho, ask_price_cap, ask_urgency, ask_example_link, provide_automation_shortcut, parse_automation_message, start_support_request
 from quizfuncs import start_quiz,start_rating_quiz, handle_answer, handle_continue, send_engagement_message, start_quiz_for_top_skills, show_available_skills
 import greetings
 import os
@@ -27,7 +28,7 @@ from telegram import (
     ReplyKeyboardRemove,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    Update,
+    Update
 )
 from telegram.constants import ParseMode
 from telegram.ext import (
@@ -42,6 +43,7 @@ from telegram.ext import (
     filters,
 )
 from telegram.error import TelegramError
+import telegram
 
 # Get current date
 current_date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%m")
@@ -133,6 +135,12 @@ async def prestart(update: Update, context: ContextTypes.DEFAULT_TYPE, connectio
                 return AGRESSOR
             elif update.message.text == "/reg":
                 await update.message.reply_text(greetings.translations.get("nickname" + update._effective_user.language_code, greetings.translations["nicknameen"]), reply_markup=ReplyKeyboardRemove())
+                context.user_data['isClient'] = False
+                return NICKNAME
+            elif update.message.text == "/regClient":
+                context.user_data['isClient'] = True
+                await update.message.reply_text(greetings.translations.get("nickname" + update._effective_user.language_code, greetings.translations["nicknameen"]), reply_markup=ReplyKeyboardRemove())
+                
                 return NICKNAME
     else :
         await update.message.reply_text("Wazzup, " + user[1] + "!")
@@ -231,21 +239,27 @@ async def nickname(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     logger.info(
         "Nickname set for %d: %s", update.effective_user.id, user_nickname
     )
+    
+    #await update.message.reply_text(greetings.translations.get("nickname" + update._effective_user.language_code, greetings.translations["nicknameen"]), reply_markup=ReplyKeyboardRemove())
+    # TODO: use greetings            
     await update.message.reply_text(
         "Приятно познакомиться, " + user_nickname + "!\n\nНапиши дискорд для связи"
     )
 
-    return DISCORD#PHOTO
+    return DISCORD
 
 @check_blocked_user
 async def skip_nickname(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Skips the nickname and asks for info about the issue."""
     logger.info("%d skipped nickname", update.effective_user.id)
+
+    #await update.message.reply_text(greetings.translations.get("nickname" + update._effective_user.language_code, greetings.translations["nicknameen"]), reply_markup=ReplyKeyboardRemove())
+    # TODO: use greetings 
     await update.message.reply_text(
         "Ну как хочешь. Хоть дискорд дай"
     )
 
-    return DISCORD#PHOTO
+    return DISCORD
 
                     # @check_blocked_user
                     # async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -277,15 +291,18 @@ async def discord(update: Update, context: ContextTypes.DEFAULT_TYPE, connection
     # Stores the discord
     user_discord = update.message.text
     context.user_data['discord'] = user_discord
-    logger.info(
-        "Discord set for %d: %s", update.effective_user.id, user_discord
-    )
+    logger.info("Discord set for %d: %s", update.effective_user.id, user_discord)
 
-    # TODO save to db
+    # save to db
     nickname = "Anonimous"
     if context.user_data.get('nickname') is not None:
         nickname = context.user_data.get('nickname')
-    db.db.create_support_agent(connection_pool, update.effective_user.id, nickname, user_discord, "UI", "just4training", "first 13 club", "Approved as Founder", "TRUE", "0", "0", "0", update._effective_user.language_code)
+    
+    if context.user_data.get('isClient') == True :
+        db.db.create_client(connection_pool, update.effective_user.id, nickname, user_discord, "no description", "UI", "NONEXISTENT", update.message.chat_id, "0", "0", update._effective_user.language_code)
+    else :
+        db.db.create_support_agent(connection_pool, update.effective_user.id, nickname, user_discord, "UI", "just4training", "first 13 club", "Approved as Founder", "TRUE", update.message.chat_id, "0", "0", update._effective_user.language_code)
+    
     logger.info("%d is IN like %s, discord: %s", update.effective_user.id, nickname, user_discord)
 
     await update.message.reply_text(
@@ -307,7 +324,7 @@ async def skip_discord(update: Update, context: ContextTypes.DEFAULT_TYPE, conne
         discord = context.user_data.get('discord')
 
     # save to db
-    db.db.create_support_agent(connection_pool, update.effective_user.id, nickname, discord, "UI", "just4training", "first 13 club", "Approved as Founder", "TRUE", "0", "0", "0", update._effective_user.language_code)
+    db.db.create_support_agent(connection_pool, update.effective_user.id, nickname, discord, "UI", "just4training", "first 13 club", "Approved as Founder", "TRUE", update.message.chat_id, "0", "0", update._effective_user.language_code)
     logger.info("%d is IN like %s, discord: %s", update.effective_user.id, nickname, discord)
     
     # Congratulate
@@ -342,7 +359,7 @@ async def block_user(update) -> None:
     user_id = update.effective_user.id
     blocked_users.add(user_id)
     logger.warning(f"User blocked: {update.effective_user.name}")
-    await update.message.reply_text(greetings.translations.get("Вы были заблокированы из-за неправильных ответов."+update._effective_user.language_code, greetings.translations.get("Вы были заблокированы из-за неправильных ответов.en")))
+    await update.message.reply_text(greetings.translations.get("Вы были заблокированы из-за неправильных ответов." + update._effective_user.language_code, greetings.translations.get("Вы были заблокированы из-за неправильных ответов.en")))
     return ConversationHandler.END
 
 
@@ -382,12 +399,13 @@ def create_reply_keyboard(question, answer, fake_answer):
 @check_blocked_user
 async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display a help message"""
+    # TODO: implement greetings
     if update.effective_user.language_code == "en" :
-        await update.message.reply_text("Use /topquiz or /start or /reg to register as agent or client.")
-    elif update.effective_user.language_code == "ukr":
-        await update.message.reply_text("Використовуйте /topquiz або /start або /reg, щоб зареєструватися як агент або клієнт.")
-    else : # rus is default
-        await update.message.reply_text("Чтобы начать квиз: /topquiz или /start или /reg, чтоб зарегистрироваться как агент или клиент.")
+        await update.message.reply_text(greetings.translations.get("help_" + update._effective_user.language_code, greetings.translations.get("help_en")))
+    elif update.effective_user.language_code == "uk":
+        await update.message.reply_text(greetings.translations.get("help_" + update._effective_user.language_code, greetings.translations.get("help_uk")))
+    else : # ru is default
+        await update.message.reply_text(greetings.translations.get("help_" + update._effective_user.language_code, greetings.translations.get("help_ru")))
 
 # Define an error handler function
 async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -395,6 +413,108 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     logger.error("Exception while handling an update:", exc_info=context.error)
 
 
+
+# # # MSG HANDLER # ## # #
+##########################
+##########################
+@check_blocked_user
+async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, connection_pool: ConnectionPool) -> None:
+    """Forward message to registered user"""
+    bot = telegram.Bot(token=os.environ["TGBOTKEY"])
+
+    # Replace CHAT_ID with the ID of the chat you want to send the message to
+    remote_chat_id = '413553377'
+
+    # Replace MESSAGE_TEXT with the text you want to send
+    message_text = 'Hello, how are you?'
+
+    # Validate input
+    if validate_forward_input(update.message.text) :
+        remote_nickname = update.message.text.split()[1]
+        message_text = ' '.join(update.message.text.split()[2:])
+        remote_user = None
+        if remote_nickname != "Anonimous":
+            remote_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
+
+            if remote_user is not None :
+                local_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
+                # message_text = "Вам сообщение от " + TODO: CHECK THAT REGISTERED AND GET OWN NICKNAME  +" : " + message_text
+                chat_id = remote_user[0]
+
+                # Sending the message
+                await bot.send_message(chat_id=chat_id, text=message_text)
+                
+            elif remote_nickname == "EVERYONE" :
+                chat_ids = db.db.get_all_support_agents(connection_pool)
+                for chat_id_item in chat_ids:
+                    # Sending the message
+                    await bot.send_message(chat_id=chat_id_item[0], text=message_text)
+            else :
+                # Oops case
+                await update.message.reply_text("Can't find user with Nickname " + remote_nickname)
+        else :
+            await update.message.reply_text("To Anonymous, really?")
+##########################
+##########################
+
+
+# # # new_ticket_handler
+##########################
+##########################
+@check_blocked_user
+async def new_ticket_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, connection_pool: ConnectionPool) -> None:
+    """Create new Ticket"""
+    bot = telegram.Bot(token=os.environ["TGBOTKEY"])
+
+    # Replace CHAT_ID with the ID of the chat you want to send the message to
+    remote_chat_id = '413553377'
+
+    # Replace MESSAGE_TEXT with the text you want to send
+    message_text = 'Hello, how are you?'
+
+    # Validate input
+    if validate_forward_input(update.message.text) :
+        remote_nickname = update.message.text.split()[1]
+        message_text = ' '.join(update.message.text.split()[2:])
+        remote_user = None
+        if remote_nickname != "Anonimous":
+            remote_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
+
+            if remote_user is not None :
+                local_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
+                # message_text = "Вам сообщение от " + TODO: CHECK THAT REGISTERED AND GET OWN NICKNAME  +" : " + message_text
+                chat_id = remote_user[0]
+
+                # Sending the message
+                await bot.send_message(chat_id=chat_id, text=message_text)
+                
+            elif remote_nickname == "EVERYONE" :
+                chat_ids = db.db.get_all_support_agents(connection_pool)
+                for chat_id_item in chat_ids:
+                    # Sending the message
+                    await bot.send_message(chat_id=chat_id_item[0], text=message_text)
+            else :
+                # Oops case
+                await update.message.reply_text("Can't find user with Nickname " + remote_nickname)
+        else :
+            await update.message.reply_text("To Anonymous, really?")
+##########################
+##########################
+
+def validate_forward_input(input_string):
+    # Split the input string into parts
+    parts = input_string.split()
+
+    # Check if the input string has the correct format
+    if len(parts) < 3 or parts[0] != '/msg':
+        return False
+
+    # Check if the second and third parts are not empty
+    if not parts[1] or not parts[2]:
+        return False
+
+    # Return True if the input is valid
+    return True
     
 def main():
     # Create the Application and pass it your bot's token.
@@ -420,7 +540,7 @@ def main():
 
     # Add the registration handler
     reg_handler = ConversationHandler(
-        entry_points=[CommandHandler("reg", lambda update, context: prestart(update, context, connection_pool))],
+        entry_points=[CommandHandler("reg", lambda update, context: prestart(update, context, connection_pool)),CommandHandler("regClient", lambda update, context: prestart(update, context, connection_pool))],
         states={
             NICKNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, nickname), CommandHandler("skip", skip_nickname)],
             #PHOTO: [MessageHandler(filters.PHOTO, photo), CommandHandler("skip", skip_photo)],
@@ -456,18 +576,47 @@ def main():
     application.add_handler(conv_handler)
 
     # Command handlers
-    application.add_handler(CommandHandler("quiz", lambda update, context: start_quiz(update, context,connection_pool)))
-    application.add_handler(CommandHandler("rating_quiz", lambda update, context: start_rating_quiz(update, context,connection_pool)))
-    application.add_handler(CommandHandler("topquiz", start_quiz_for_top_skills))
+ #   application.add_handler(CommandHandler("quiz", lambda update, context: start_quiz(update, context, connection_pool)))
+ #   application.add_handler(CommandHandler("rating_quiz", lambda update, context: start_rating_quiz(update, context, connection_pool)))
+ #   application.add_handler(CommandHandler("topquiz", start_quiz_for_top_skills)
+
     application.add_handler(CommandHandler("showskills", show_available_skills))
+    application.add_handler(CommandHandler("estchoposkilam", show_available_skills))
     application.add_handler(CommandHandler("help", help_handler))
-    application.add_handler(CommandHandler("reg", help_handler))
+    application.add_handler(CommandHandler("msg", lambda update, context: msg_handler(update, context, connection_pool)))
     
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, lambda update, context: handle_answer(update, context, connection_pool)))
-    application.add_handler(MessageHandler(filters.Regex('^Continue|Продолжить|Продовжити$'), lambda update, context: handle_continue(update, context, connection_pool)))
+ #   application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, lambda update, context: handle_answer(update, context, connection_pool)))
+ #   application.add_handler(MessageHandler(filters.Regex('^Continue|Продолжить|Продовжити$'), lambda update, context: handle_continue(update, context, connection_pool)))
 
 
+    # Create the Quiz conversation handler
+    quiz_handler = ConversationHandler(
+        entry_points=[CommandHandler("quiz", lambda update, context: start_quiz(update, context, connection_pool)),
+                      CommandHandler("rating_quiz", lambda update, context: start_rating_quiz(update, context, connection_pool)),
+                      CommandHandler("topquiz", start_quiz_for_top_skills)],
+        states={
+            ANSWER: [MessageHandler(filters.TEXT & ~filters.COMMAND, lambda update, context: handle_answer(update, context, connection_pool))],
+            CONTINUE: [MessageHandler(filters.Regex('^Continue|Продолжить|Продовжити$'), lambda update, context: handle_continue(update, context, connection_pool))]
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+    application.add_handler(quiz_handler)
 
+    # Create the Support Ticket conversation handler
+    support_request_handler = ConversationHandler(
+        entry_points=[CommandHandler('ticket', lambda update, context: start_support_request(update, context, connection_pool)), 
+                    CommandHandler("go", lambda update, context: start_support_request(update, context, connection_pool)), 
+                    CommandHandler("estcho", lambda update, context: estcho(update, context, connection_pool))],
+        states={
+            DESCRIPTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_price_cap)],
+            PRICE_CAP: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_urgency)],
+            URGENCY: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_example_link)],
+            EXAMPLE_LINK: [MessageHandler(filters.TEXT & ~filters.COMMAND, lambda update, context: provide_automation_shortcut(update, context, connection_pool))],
+            AUTOMATION_SHORTCUT: [MessageHandler(filters.TEXT & ~filters.COMMAND, lambda update, context: parse_automation_message(update, context, connection_pool))]
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+    application.add_handler(support_request_handler)
 
     application.add_error_handler(error_handler)
 

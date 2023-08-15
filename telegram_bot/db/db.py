@@ -45,8 +45,21 @@ class ConnectionPool:
 
     def create_table(self, table_name: str, sql_command):
         if self.table_exists(table_name):
+            print(f"Table '{table_name}' already exists. Saved your ass! Exiting - to recreate use REcreate_table func:)")
+            return
+
+        connection = self.get_connection()
+        cursor = connection.cursor()
+        cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+        cursor.execute(sql_command)
+        connection.commit()
+        cursor.close()
+        print(f"Table '{table_name}' created successfully.")
+    
+    def REcreate_table(self, table_name: str, sql_command):
+        if self.table_exists(table_name):
             print(f"Table '{table_name}' already exists. Recreating.")
-            #return
+            return
 
         connection = self.get_connection()
         cursor = connection.cursor()
@@ -72,7 +85,7 @@ def init_data(connection: Connection):
     c = connection.cursor()
     # Create the Skills table
     c.execute('''
-        CREATE TABLE Skills (
+        CREATE TABLE IF NOT EXISTS  Skills (
             Skill_ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT,
             Description TEXT
@@ -81,7 +94,7 @@ def init_data(connection: Connection):
 
     # Create the Sites table
     c.execute('''
-        CREATE TABLE Sites (
+        CREATE TABLE IF NOT EXISTS  Sites (
             Site_ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT,
             Description TEXT
@@ -96,7 +109,7 @@ def init_data(connection: Connection):
     #     "site3": "skill6"
     # }
     c.execute('''
-        CREATE TABLE SiteSkills (
+        CREATE TABLE IF NOT EXISTS  SiteSkills (
             Site_ID TEXT,
             Skills TEXT,
             FOREIGN KEY (Site_ID) REFERENCES SupportAgents (Site_ID)
@@ -109,7 +122,7 @@ def init_data(connection: Connection):
 
     # Create the Support Agents table
     c.execute('''
-        CREATE TABLE SupportAgents (
+        CREATE TABLE IF NOT EXISTS  SupportAgents (
             Agent_ID INTEGER PRIMARY KEY,
             Nickname TEXT,
             Discord TEXT,
@@ -118,7 +131,7 @@ def init_data(connection: Connection):
             Achievements TEXT,
             Verification_Status TEXT,
             Blue_Checkmark TEXT,
-            Number_of_Tickets INTEGER,
+            Chat_ID INTEGER,
             Number_of_Executed_Tickets INTEGER,
             Positive_Reviews INTEGER,
             Preferred_Lang TEXT
@@ -127,14 +140,14 @@ def init_data(connection: Connection):
 
     # Create the Clients table
     c.execute('''
-        CREATE TABLE Clients (
+        CREATE TABLE IF NOT EXISTS Clients (
             Client_ID INTEGER PRIMARY KEY,
             Nickname TEXT,
             Discord_Client TEXT,
             Application_Description TEXT,
             Required_Skills TEXT,
             Application_Status TEXT
-            Number_of_Tickets INTEGER,
+            Chat_ID INTEGER,
             Number_of_Resolved_Tickets INTEGER,
             Positive_Reviews INTEGER
         )
@@ -142,15 +155,16 @@ def init_data(connection: Connection):
     
     # Create the SupportTickets table
     c.execute('''
-        CREATE TABLE SupportTickets (
+        CREATE TABLE IF NOT EXISTS SupportTickets (
             Ticket_ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Assigned_Agent_ID INTEGER,
             Client_ID INTEGER,
             Site_ID INTEGER,
-            Priority INTEGER,
+            Priority TEXT,
             State TEXT,
             Description TEXT,
             Comments TEXT,
+            History TEXT,
             FOREIGN KEY (Assigned_Agent_ID) REFERENCES SupportAgents (Agent_ID),
             FOREIGN KEY (Client_ID) REFERENCES Clients (Client_ID),
             FOREIGN KEY (Site_ID) REFERENCES Site (Site_ID)
@@ -222,13 +236,22 @@ def init_data(connection: Connection):
         CREATE TABLE IF NOT EXISTS Channels (
             Channel_ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Bio TEXT,
-            Achievements TEXT,
-            FOREIGN KEY (Skill_ID) REFERENCES skills(Skill_ID),
-            FOREIGN KEY (Vid_guest_ID) REFERENCES guests(Guest_ID)
+            Achievements TEXT
         )
     ''')
+
+    # Create Hello table just for lulz
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS Hello (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            GG TEXT
+        )
+    ''')
+
+    
     
     connection.commit()
+    creategg(connection)
 
 
 
@@ -255,8 +278,8 @@ def save_to_csv(connection: Connection, table_name, file_name):
     c.execute(f'SELECT * FROM {table_name}')
     rows = c.fetchall()
 
-    with open(file_name, 'w', newline='\n') as file:
-        writer = csv.writer(file, delimeter = "\t")
+    with open(file_name, 'w', newline='\n', encoding="utf-8") as file:
+        writer = csv.writer(file, delimiter = "\t")
         writer.writerow([description[0] for description in c.description])  # Write the column names
         writer.writerows(rows)  # Write the data rows
 
@@ -285,25 +308,40 @@ def update_from_tsv(connection: Connection, table_name, file_name):
 ########################################
 ############# MAIN FUNCS ###############
 ########################################
-# most important ones for managing support tickets. We'll optimize the functions for efficiency and ease of use. Here's a list of functions you might need:
-#1. Function to Create a New Support Ticket:
-def create_support_ticket(connection: Connection, client_id, site_id):
+def creategg(connection: Connection):
     # Connect to the SQLite database
     c = connection.cursor()
 
     # Insert the new support ticket into the SupportTickets table
     c.execute('''
-        INSERT INTO SupportTickets (Ticket_ID, Assigned_Agent_ID, Client_ID, Site_ID, Priority, State, Description, Comments)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (client_id, site_id))
+        INSERT INTO Hello (ID, GG)
+        VALUES (?, ?)
+    ''', (None, "GG"))
+
+# most important ones for managing support tickets. We'll optimize the functions for efficiency and ease of use. Here's a list of functions you might need:
+#1. Function to Create a New Support Ticket:
+@with_connection
+def create_support_ticket(connection: Connection, Ticket_ID, Assigned_Agent_ID, Client_ID, Site_ID, Priority, State, Description, Comments, History, date, by_whom):
+    History_str = "Created by " + by_whom + date
+    
+    # Connect to the SQLite database
+    c = connection.cursor()
+
+    # Insert the new support ticket into the SupportTickets table
+    c.execute('''
+        INSERT INTO SupportTickets (Ticket_ID, Assigned_Agent_ID, Client_ID, Site_ID, Priority, State, Description, Comments, History)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (Ticket_ID, Assigned_Agent_ID, Client_ID, Site_ID, Priority, State, Description, Comments, History_str))
 
     # Save changes and close the connection
-    connection.commit()
+    return connection.commit()
+
+    
 #This function allows you to create a new support ticket by providing the client's ID and the site's ID for which the ticket is created.
 
 #2. Function to Change Ticket State:
 @with_connection
-def change_ticket_state(connection: Connection, ticket_id, new_state):
+def change_ticket_state(connection: Connection, ticket_id, new_state, date, by_whom):
     # Connect to the SQLite database
     c = connection.cursor()
 
@@ -320,7 +358,9 @@ def change_ticket_state(connection: Connection, ticket_id, new_state):
 
 #3. Function to Assign an Agent to a Ticket:
 @with_connection
-def assign_agent_to_ticket(connection: Connection, ticket_id, agent_id):
+def assign_agent_to_ticket(connection: Connection, ticket_id, agent_id, date, by_whom):
+    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Agent assigned: " + get_support_agent_by_id(connection, agent_id)[1] + " by " + get_client_by_id(connection, by_whom)[1] + date
+    
     # Connect to the SQLite database
     c = connection.cursor()
 
@@ -392,17 +432,17 @@ def get_ticket_state(connection: Connection, ticket_id):
 
 #7. Function to Update Ticket Priority:
 @with_connection
-def update_ticket_priority(connection: Connection, ticket_id, priority):
-    # Connect to the SQLite database and update the ticket priority
-    # ...
+def update_ticket_priority(connection: Connection, ticket_id, priority, date, by_whom):
+    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Priority was updateed: " + priority + " by " + by_whom + date
+
     # Connect to the SQLite database
     c = connection.cursor()
     # Update the assigned agent for the specified ticket
     c.execute('''
         UPDATE SupportTickets
-        SET Priority = ?
+        SET Priority = ?, History = ?
         WHERE Ticket_ID = ?
-    ''', (priority, ticket_id))
+    ''', (priority, ticket_history, ticket_id))
 
     # Save changes and close the connection
     connection.commit()
@@ -425,18 +465,21 @@ def get_ticket_assignee(connection: Connection, ticket_id):
 
 #9. Function to Add a Comment to a Ticket:
 @with_connection
-def add_comment_to_ticket(connection: Connection, ticket_id, comment):
+def add_comment_to_ticket(connection: Connection, ticket_id, comment, date, by_whom):
+    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Comment addeded: " + comment + " by " + by_whom + date
+    
     # Connect to the SQLite database and add a new comment to the ticket
     ticket_comments = get_ticket_comments(connection, ticket_id)
-    ticket_comments += "\n\n" + comment
+    ticket_comments += "\n\n" + comment 
+
     # Connect to the SQLite database and retrieve the comments of the ticket
     c = connection.cursor()
     # Update the assigned agent for the specified ticket
     c.execute('''
         UPDATE SupportTickets
-        SET Comments = ?
+        SET Comments = ?, History = ?
         WHERE Ticket_ID = ?
-    ''', (ticket_comments, ticket_id))
+    ''', (ticket_comments, ticket_history, ticket_id))
 
     # Save changes and close the connection
     connection.commit()
@@ -459,20 +502,48 @@ def get_ticket_comments(connection: Connection, ticket_id):
 
 #11. Function to Close a Ticket:
 @with_connection
-def close_ticket(connection: Connection, ticket_id):
+def close_ticket(connection: Connection, ticket_id, date, by_whom):
+    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Date Of Closure: " + date + " by " + by_whom
+    
     # Connect to the SQLite database and close the specified ticket
     c = connection.cursor()
-    # Update the assigned agent for the specified ticket
+
+    # Update the ticket
     c.execute('''
         UPDATE SupportTickets
-        SET State = ?
+        SET State = ?, History = ?
         WHERE Ticket_ID = ?
-    ''', ( "Closed", ticket_id))
+    ''', ( "Closed", ticket_history, ticket_id))
 
     # Save changes and close the connection
     connection.commit()
-
 #This function changes the state of a support ticket to "Closed" based on its ticket ID.
+
+#12. Get ticket history
+@with_connection
+def get_ticket_history(connection: Connection, ticket_id):
+    # Connect to the SQLite database and close the specified ticket
+    c = connection.cursor()
+
+    # Retrieve details of the specified ticket
+    c.execute('''
+        SELECT History
+        FROM SupportTickets
+        WHERE Ticket_ID = ?
+    ''', (ticket_id,))
+    ticket_history = c.fetchone()
+    return ticket_history
+
+#13. 
+@with_connection
+def get_tickets(connection: Connection):
+    c = connection.cursor()
+    c.execute('''
+        SELECT *
+        FROM SupportTickets
+    ''')
+    sites = c.fetchall()
+    return sites
 #These functions should provide you with a good foundation for managing your support tickets in your platform. Remember to customize them according to your specific needs and database structure.
 
 # Function that retrieves a list of agent IDs for agents who have the required skills for a support ticket, you can use the following code:
@@ -575,21 +646,20 @@ def get_site_by_id(connection: Connection, site_id):
         WHERE id = ?
     ''', (site_id,))
     site = c.fetchone()
-
+    return site
 
 #3. Functions for the "SupportAgents" table:
 @with_connection
-def create_support_agent(connection: Connection, tg_id, name, discord, skills, price_map, achievements, verification_status, blue_checkmark, number_of_tickets, number_of_executed_tickets, positive_reviews, lang):
+def create_support_agent(connection: Connection, agent_id, nickname, discord, skills, price_map, achievements, verification_status, blue_checkmark, chat_id, number_of_executed_tickets, positive_reviews, lang):
     c = connection.cursor()
     c.execute('''
-        INSERT INTO SupportAgents (Agent_ID, Nickname, Discord, Skills, Price_Map, Achievements, Verification_Status, Blue_Checkmark, Number_of_Tickets, Number_of_Executed_Tickets, Positive_Reviews, Preferred_Lang)
+        INSERT INTO SupportAgents (Agent_ID, Nickname, Discord, Skills, Price_Map, Achievements, Verification_Status, Blue_Checkmark, Chat_ID, Number_of_Executed_Tickets, Positive_Reviews, Preferred_Lang)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (tg_id, name, discord, skills, price_map, achievements, verification_status, blue_checkmark, number_of_tickets, number_of_executed_tickets, positive_reviews, lang))
+    ''', (agent_id, nickname, discord, skills, price_map, achievements, verification_status, blue_checkmark, chat_id, number_of_executed_tickets, positive_reviews, lang))
     # Save changes and return True to indicate successful update
     connection.commit()
     return True
 # Agent_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-# TG_ID TEXT,
 # Nickname TEXT,
 # Discord TEXT,
 # Skills TEXT,
@@ -597,10 +667,12 @@ def create_support_agent(connection: Connection, tg_id, name, discord, skills, p
 # Achievements TEXT,
 # Verification_Status TEXT,
 # Blue_Checkmark TEXT,
-# Number_of_Tickets INTEGER,
+# Chat_ID INTEGER,
 # Number_of_Executed_Tickets INTEGER,
 # Positive_Reviews INTEGER,
 # Preferred_Lang TEXT
+
+
 @with_connection
 def get_all_support_agents(connection: Connection):
     c = connection.cursor()
@@ -609,6 +681,7 @@ def get_all_support_agents(connection: Connection):
         FROM SupportAgents
     ''')
     support_agents = c.fetchall()
+    return support_agents
 
 @with_connection
 def get_support_agent_by_id(connection: Connection, agent_id):
@@ -621,18 +694,40 @@ def get_support_agent_by_id(connection: Connection, agent_id):
     support_agent = c.fetchone()
     return support_agent
 
+@with_connection
+def get_support_agent_by_nickname(connection: Connection, agent_nickname):
+    c = connection.cursor()
+    c.execute('''
+        SELECT *
+        FROM SupportAgents
+        WHERE Nickname = ?
+    ''', (agent_nickname,))
+    support_agent = c.fetchone()
+    return support_agent
+
 
 #4. Functions for the "Clients" table:
 @with_connection
-def create_client(connection: Connection, client_name, discord_client, application_description, required_skills, application_status, number_of_tickets, number_of_resolved_tickets, positive_peviews):
+def create_client(connection: Connection, client_id, nickname, discord_client, application_description, required_skills, application_status, chat_id, number_of_resolved_tickets, positive_peviews, preferred_lang):
     c = connection.cursor()
     c.execute('''
-        INSERT INTO Clients (Client_Name, Discord_Client, Application_Description, Required_Skills, Application_Status, Number_of_Tickets, Positive_Reviews)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (client_name, discord_client, application_description, required_skills, application_status, number_of_tickets, number_of_resolved_tickets, positive_peviews))
+        INSERT INTO Clients (Client_ID, Nickname, Discord_Client, Application_Description, Required_Skills, Application_Status, Chat_ID, Positive_Reviews, Preferred_Lang)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (client_id, nickname, discord_client, application_description, required_skills, application_status, chat_id, number_of_resolved_tickets, positive_peviews, preferred_lang))
+
     # Save changes and return True to indicate successful update
     connection.commit()
     return True
+# Client_ID INTEGER PRIMARY KEY,
+# Nickname TEXT,
+# Discord_Client TEXT,
+# Application_Description TEXT,
+# Required_Skills TEXT,
+# Application_Status TEXT
+# Chat_ID INTEGER,
+# Number_of_Resolved_Tickets INTEGER,
+# Positive_Reviews INTEGER
+
 
 @with_connection
 def get_all_clients(connection: Connection):
@@ -807,98 +902,161 @@ def main():
     #connection_pool.__init__() 
     
     # Example usage
-    #init_data(connection_pool)
-    connection_pool.create_table("QuizQuestions", '''
-        CREATE TABLE IF NOT EXISTS QuizQuestions (
-            Q_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            Skill_ID INTEGER,
-            Site_ID INTEGER,
-            Question_text_ru TEXT,
-            Question_text_en TEXT,
-            Answer TEXT,
-            Fake_answer TEXT,
-            Clue_ru TEXT,
-            Clue_en TEXT,
-            Video_url TEXT,
-            Vid_ID INTEGER,
-            Vid_descr_local TEXT,
-            Vid_guest_ID INTEGER,
-            Vid_channel_ID INTEGER,
-            Chapter_ID INTEGER,
-            Timestamp TEXT,
-            a_en TEXT,
-            a_ru TEXT,
-            fa_en TEXT,
-            fa_ru TEXT, 
-            FOREIGN KEY (Skill_ID) REFERENCES Skills(Skill_ID),
-            FOREIGN KEY (Site_ID) REFERENCES Sites(Site_ID),
-            FOREIGN KEY (Vid_ID) REFERENCES Videos(Vid_ID), 
-            FOREIGN KEY (Vid_guest_ID) REFERENCES Guests(Guest_ID),
-            FOREIGN KEY (Vid_channel_ID) REFERENCES Channels(Channel_ID),
-            FOREIGN KEY (Chapter_ID) REFERENCES Chapters(Chapter_ID)
-        )
-    ''')
-    # Create the Skill table
-    connection_pool.create_table("Skills", '''
-        CREATE TABLE Skills (
-            Skill_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            Name TEXT,
-            Description TEXT
-        )
-    ''')
+    init_data(connection_pool)
+    data = get_data(connection_pool, "Hello") 
+    print(data)
 
-                                # # Create the Support Agents table
-                                # connection_pool.create_table("SupportAgents", '''
-                                #     CREATE TABLE SupportAgents (
-                                #         Agent_ID INTEGER PRIMARY KEY,
-                                #         Nickname TEXT,
-                                #         Discord TEXT,
-                                #         Skills TEXT,
-                                #         Price_Map TEXT,
-                                #         Achievements TEXT,
-                                #         Verification_Status TEXT,
-                                #         Blue_Checkmark TEXT,
-                                #         Number_of_Tickets INTEGER,
-                                #         Number_of_Executed_Tickets INTEGER,
-                                #         Positive_Reviews INTEGER,
-                                #         Preferred_Lang TEXT
-                                #     )
-                                # ''')
+    # # Create the QuizQuestions table # 
+    ##########################
+    # # Get the absolute path to the file
+    # file_path = os.path.abspath("telegram_bot\\db\\69UI_questions4tgBot_withClues.tsv")
+    # # Check if the file exists
+    # if os.path.exists(file_path):
+    #     update_from_tsv(connection_pool, "QuizQuestions", file_path)
+    # else:
+    #     print(f"File not found!: {file_path}")
+    #     save_to_csv(connection_pool, "QuizQuestions", file_path)
 
-    connection_pool.create_table("Clients", '''
-        CREATE TABLE Clients (
+    # connection_pool.create_table("QuizQuestions", '''
+    #     CREATE TABLE IF NOT EXISTS QuizQuestions (
+    #         Q_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         Skill_ID INTEGER,
+    #         Site_ID INTEGER,
+    #         Question_text_ru TEXT,
+    #         Question_text_en TEXT,
+    #         Answer TEXT,
+    #         Fake_answer TEXT,
+    #         Clue_ru TEXT,
+    #         Clue_en TEXT,
+    #         Video_url TEXT,
+    #         Vid_ID INTEGER,
+    #         Vid_descr_local TEXT,
+    #         Vid_guest_ID INTEGER,
+    #         Vid_channel_ID INTEGER,
+    #         Chapter_ID INTEGER,
+    #         Timestamp TEXT,
+    #         a_en TEXT,
+    #         a_ru TEXT,
+    #         fa_en TEXT,
+    #         fa_ru TEXT, 
+    #         FOREIGN KEY (Skill_ID) REFERENCES Skills(Skill_ID),
+    #         FOREIGN KEY (Site_ID) REFERENCES Sites(Site_ID),
+    #         FOREIGN KEY (Vid_ID) REFERENCES Videos(Vid_ID), 
+    #         FOREIGN KEY (Vid_guest_ID) REFERENCES Guests(Guest_ID),
+    #         FOREIGN KEY (Vid_channel_ID) REFERENCES Channels(Channel_ID),
+    #         FOREIGN KEY (Chapter_ID) REFERENCES Chapters(Chapter_ID)
+    #     )
+    # ''')
+
+
+    # # Create the Skill table
+    ##########################
+    # file_path = os.path.abspath("telegram_bot\\db\\UI_questions4tgBot - Skills.tsv")
+    # # Check if the file exists
+    # if os.path.exists(file_path):
+    #     update_from_tsv(connection_pool, "Skills", file_path)
+    # else:
+    #     print(f"File not found!: {file_path}")
+    #     save_to_csv(connection_pool, "Skills", file_path)
+    # data = get_data(connection_pool, "Skills") 
+    # print(data) 
+    
+    
+    # connection_pool.create_table("Skills", '''
+    #     CREATE TABLE Skills (
+    #         Skill_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         Name TEXT,
+    #         Description TEXT
+    #     )
+    # ''')
+
+
+    # # Create the Support Agents table
+    ##########################
+    # # Get the absolute path to the Agents tsv file
+    # file_path = os.path.abspath("telegram_bot\\db\\Agents.tsv")
+    # # Check if the file exists
+    # if os.path.exists(file_path):
+    #     print(file_path)
+    #     update_from_tsv(connection_pool, "SupportAgents", file_path)
+    # else:
+    #     print(f"File not found!: {file_path}")
+    #     save_to_csv(connection_pool, "SupportAgents", file_path)
+    # data = get_data(connection_pool, "SupportAgents") 
+    # print(data) 
+
+    # connection_pool.create_table("SupportAgents", '''
+    #     CREATE TABLE IF NOT EXISTS SupportAgents (
+    #         Agent_ID INTEGER PRIMARY KEY,
+    #         Nickname TEXT,
+    #         Discord TEXT,
+    #         Skills TEXT,
+    #         Price_Map TEXT,
+    #         Achievements TEXT,
+    #         Verification_Status TEXT,
+    #         Blue_Checkmark TEXT,
+    #         Chat_ID INTEGER,
+    #         Number_of_Executed_Tickets INTEGER,
+    #         Positive_Reviews INTEGER,
+    #         Preferred_Lang TEXT
+    #     )
+    # ''')
+
+    # # Create the Clients table
+    ##########################
+    #connection_pool.create_table("Clients", '''
+    connection_pool.REcreate_table("Clients", '''
+        CREATE TABLE IF NOT EXISTS Clients (
             Client_ID INTEGER PRIMARY KEY,
-            Client_Name TEXT,
+            Nickname TEXT,
             Discord_Client TEXT,
             Application_Description TEXT,
             Required_Skills TEXT,
             Application_Status TEXT
-            Number_of_Tickets INTEGER,
+            Chat_ID INTEGER,
             Number_of_Resolved_Tickets INTEGER,
             Positive_Reviews INTEGER,
             Preferred_Lang TEXT
         )
     ''')
-    # Get the absolute path to the file
-    file_path = os.path.abspath("telegram_bot\\db\\69UI_questions4tgBot_withClues.tsv")
-    # Check if the file exists
-    if os.path.exists(file_path):
-        update_from_tsv(connection_pool, "QuizQuestions", file_path)
-    else:
-        print(f"File not found!: {file_path}")
+    data = get_data(connection_pool, "Clients") 
+    print(data)
 
-    file_path = os.path.abspath("telegram_bot\\db\\UI_questions4tgBot - Skills.tsv")
-    # Check if the file exists
-    if os.path.exists(file_path):
-        update_from_tsv(connection_pool, "Skills", file_path)
-    else:
-        print(f"File not found!: {file_path}")
-    data = get_data(connection_pool, "Skills") 
-    print(data) 
-    
+    # # Create the SupportTickets table
+    ##########################
+    #connection_pool.create_table('''
+    connection_pool.REcreate_table("SupportTickets", '''
+        CREATE TABLE IF NOT EXISTS SupportTickets (
+            Ticket_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Assigned_Agent_ID INTEGER,
+            Client_ID INTEGER,
+            Site_ID INTEGER,
+            Priority TEXT,
+            State TEXT,
+            Description TEXT,
+            Comments TEXT,
+            History TEXT,
+            FOREIGN KEY (Assigned_Agent_ID) REFERENCES SupportAgents (Agent_ID),
+            FOREIGN KEY (Client_ID) REFERENCES Clients (Client_ID),
+            FOREIGN KEY (Site_ID) REFERENCES Site (Site_ID)
+        )
+    ''')
+    data = get_data(connection_pool, "SupportTickets") 
+    print(data)
+
+
+
+
+
+    # # MISC # #
+    ############
     #insert_data("New data") 
     #file_path = os.path.abspath("telegram_bot\\db\\input_file.txt")
     #db_helper.process_strings(file_path)
+
+
+
+
     # Close the connection pool when done 
     connection_pool.close()
 
