@@ -119,7 +119,7 @@ Do you think recruitment is the future of the digital world and virtual experien
 
 ### Built With
 
-* [![Python][Python.com]][Python-url]
+* [![Python][Python.com][Python-url]]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -141,7 +141,7 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Get a free API Key at TG BotFather
 2. Clone the repo
    ```sh
    git clone https://github.com/SALAVEY13/bestQuest.git
@@ -152,20 +152,20 @@ This is an example of how to list things you need to use the software and how to
    ```
 4. Enter your API in environment variables and download you youtube API's "client-secret.json"
    ```txt
-   # Create the Application and pass it your bot's token.
-  YOUR_TELEGRAM_BOT_TOKEN=os.environ["TGBOTKEY"]
+    # Create the Application and pass it your bot's token.
+    YOUR_TELEGRAM_BOT_TOKEN=os.environ["TGBOTKEY"]
       
-  api_key =  os.environ["YOUR_GOOGLE_API_KEY"]
-  cx_id =  os.environ["YOUR_GOOGLE_CX_ID"]
+    api_key =  os.environ["YOUR_GOOGLE_API_KEY"]
+    cx_id =  os.environ["YOUR_GOOGLE_CX_ID"]
 
-  # Set up your YouTube_Data_API credentials
-  api_key = os.environ["YouTube_Data_API"]
-  CLIENT_SECRET_FILE = 'client-secret.json'
-  API_NAME = 'youtube'
-  API_VERSION = 'v3'
-  SCOPES = ['https://www.googleapis.com/auth/youtube']
+    # Set up your YouTube_Data_API credentials
+    api_key = os.environ["YouTube_Data_API"]
+    CLIENT_SECRET_FILE = 'client-secret.json'
+    API_NAME = 'youtube'
+    API_VERSION = 'v3'
+    SCOPES = ['https://www.googleapis.com/auth/youtube']
 
-  client-secret.json
+    client-secret.json
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -177,7 +177,7 @@ This is an example of how to list things you need to use the software and how to
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-_For example, please refer to the [Documentation](https://oneSitePls.framer.ai)_
+_For example, please refer to the [WebDesignStudio](https://oneSitePls.framer.ai)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -227,7 +227,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Pavel Solovyev - [@yt_handle](https://youtube.com/SALAVEY13) - salavey13@gmail.com
+salavey13@gmail.com - [@yt_handle](https://youtube.com/SALAVEY13)
 
 Project Link: [https://github.com/SALAVEY13/bestQuest](https://github.com/SALAVEY13/bestQuest)
 
