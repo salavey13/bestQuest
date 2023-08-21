@@ -186,9 +186,9 @@ translations = {
     "ticket_success_en" : "Support request created successfully!",
     "ticket_success_uk" : "Запит на підтримку створено успішно!",
     "ticket_success_ru": "Запрос в службу поддержки создан успешно!",
-    "ticket_success_bm_en" : "New Support request was justcreated!",
-    "ticket_success_bm_ru": "Только что создан новый запрос в службу поддержки!",
-    "ticket_success_bm_uk" : "Щойно створено новий запит на підтримку!",
+    "ticket_success_bm_en" : "New Support request was just created! Check it out /estcho",
+    "ticket_success_bm_ru": "Только что создан новый запрос в службу поддержки! Чекай /estcho",
+    "ticket_success_bm_uk" : "Щойно створено новий запит на підтримку! Перевірте це /estcho",
 
         # Add more translations if needed
     }

@@ -84,7 +84,7 @@ async def provide_automation_shortcut(update, context, connection_pool: Connecti
             await update.message.reply_text(greetings.translations.get("regfirst_" + update._effective_user.language_code, greetings.translations["regfirst_en"]))
             return ConversationHandler.END
 
-    await parse_automation_message(update, context, precomposed_message, connection_pool, date, by_whom)
+    await parse_automation_message(update, context, precomposed_message, connection_pool)
     return AUTOMATION_SHORTCUT
 
 # Cancel the conversation
@@ -195,7 +195,33 @@ def save_request_to_database(request_data, connection_pool: ConnectionPool, date
 
 async def estcho(update, context, connection_pool: ConnectionPool):
     tickets = get_tickets(connection_pool)
-    await update.message.reply_text(tickets)
+    ticket_list = "All tickets:\n\n"
+    for ticket in tickets :
+        Ticket_ID = ticket[0]
+        Assigned_Agent_ID = ticket[1]
+        Client_ID = ticket[2]
+        Site_ID = ticket[3]
+        Priority = ticket[4]
+        State = ticket[5]
+        Description = ticket[6]
+        Comments = ticket[7]
+        History = ticket[8]
+        ticketCard = ""
+
+        ticketCard = ticketCard + "No: " + str(Ticket_ID) + "\n"
+        if Assigned_Agent_ID is not None:
+            ticketCard = ticketCard + "Agent: " + get_support_agent_by_id(connection_pool)[1] + "\n"
+        else:
+            ticketCard = ticketCard + "Agent:\n"
+        # TODO: only Clients can make tickets? i think not! ticketCard = "Client: " + get_client_by_id(connection_pool, Client_ID)[1] + "\n"
+        ticketCard = ticketCard + "Priority: " + Priority + "\n"
+        ticketCard = ticketCard + "State: " + State + "\n"
+        ticketCard = ticketCard + "Description: " + Description + "\n"
+        # ticketCard = ticketCard + "Comments: " + Comments + "\n"
+        # ticketCard = ticketCard + "History: " + History + "\n"
+
+        ticket_list = ticket_list + "\n" + ticketCard
+    await update.message.reply_text(ticket_list)
 # In this updated code, I've added the parse_automation_message function as a MessageHandler to the AUTOMATION_SHORTCUT state. This function parses and validates the precomposed automation message and extracts the required fields. If the message is valid, it creates a dictionary (request_data) with the extracted fields. Then, it calls the save_request_to_database function to save the request data to an SQLite database table.
 
 # The save_request_to_database function connects to the SQLite database file (support_requests.db), inserts the request data into the support_requests table, and commits the changes.
