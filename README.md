@@ -15,7 +15,7 @@
 *** I'm using markdown "reference style" links for readability.
 *** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
 *** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
+*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.[![LinkedIn][linkedin-shield]][linkedin-url]
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 [![Contributors][contributors-shield]][contributors-url]
@@ -23,7 +23,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
+
 
 
 
@@ -31,7 +31,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/SALAVEY13/bestQuest">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="blob/main/icon.png?raw=true" alt="Logo" width="420" height="420">
   </a>
 
 <h3 align="center">Best Quest - Educational Telegram Bot based Platform</h3>
@@ -227,7 +227,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-salavey13@gmail.com - [@yt_handle](https://youtube.com/SALAVEY13)
+salavey13@gmail.com - [@yt](https://youtube.com/SALAVEY13)
 
 Project Link: [https://github.com/SALAVEY13/bestQuest](https://github.com/SALAVEY13/bestQuest)
 
