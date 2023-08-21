@@ -30,8 +30,8 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/SALAVEY13/bestQuest">
-    <img src="blob/main/icon.png?raw=true" alt="Logo" width="420" height="420">
+  <a href="https://github.com/SALAVEY13/bestQuest/blob/main/icon.png?raw=true">
+    <img src="https://github.com/SALAVEY13/bestQuest/blob/main/icon.png?raw=true" alt="Logo" width="420" height="420">
   </a>
 
 <h3 align="center">Best Quest - Educational Telegram Bot based Platform</h3>
