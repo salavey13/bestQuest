@@ -210,7 +210,7 @@ async def estcho(update, context, connection_pool: ConnectionPool):
     
     await update.message.reply_text(ticket_list)
 
-# Update ticket status and display details
+# Update ticket progress status and display details
 async def do(update, context, connection_pool: ConnectionPool):
     ticket_id = validate_ticket_id(update)
     
@@ -232,11 +232,12 @@ async def do(update, context, connection_pool: ConnectionPool):
     ticket = change_ticket_state(connection_pool, update.message.text.split()[1].strip(), user_id, "In Progress", date, by_whom[1])
     if ticket is not None:
         ticket_card = generate_ticket_card(connection_pool, ticket)
-        await update.message.reply_text(ticket_card)
+        #await update.message.reply_text(ticket_card)
         await notifyEVERYONE(greetings.translations.get("ticket_in_progress_bm_" + update._effective_user.language_code, greetings.translations["ticket_in_progress_bm_en"]) + "\n" + ticket_card, ticket[2], connection_pool)
         
         logger.info("Ticket in progress: %d %s", ticket[0], ticket)
 
+# Update ticket assignment status and display details
 async def get(update, context, connection_pool: ConnectionPool):
     ticket_id = validate_ticket_id(update)
     
@@ -257,10 +258,11 @@ async def get(update, context, connection_pool: ConnectionPool):
     ticket = assign_agent_to_ticket(connection_pool, update.message.text.split()[1].strip(), user_id, date, by_whom[1])
     if ticket is not None:
         ticket_card = generate_ticket_card(connection_pool, ticket)
-        await update.message.reply_text(ticket_card)
+        #await update.message.reply_text(ticket_card)
         await notifyEVERYONE(greetings.translations.get("ticket_assigned_bm_" + update._effective_user.language_code, greetings.translations["ticket_assigned_bm_en"]) + "\n" + ticket_card, ticket[2], connection_pool)
         logger.info("Ticket assigned: %d %s", ticket[0], ticket)
 
+# Update ticket resolution status and display details
 async def finish(update, context, connection_pool: ConnectionPool):
     ticket_id = validate_ticket_id(update)
     
@@ -294,9 +296,10 @@ async def finish(update, context, connection_pool: ConnectionPool):
     
     if ticket is not None:
         ticket_card = generate_ticket_card(connection_pool, ticket)
-        await update.message.reply_text(ticket_card)
+        #await update.message.reply_text(ticket_card)
         await notifyEVERYONE(greetings.translations.get("ticket_finished_bm_" + update._effective_user.language_code, greetings.translations["ticket_finished_bm_en"]) + "\n" + ticket_card, ticket[2], connection_pool)
 
+# Promote ticket and display details
 async def promote(update, context, connection_pool: ConnectionPool):
     ticket_id = validate_ticket_id(update)
     
@@ -325,9 +328,10 @@ async def promote(update, context, connection_pool: ConnectionPool):
     
     if ticket is not None:
         ticket_card = generate_ticket_card(connection_pool, ticket)
-        await update.message.reply_text(ticket_card)
+        #await update.message.reply_text(ticket_card)
         await notifyEVERYONE(greetings.translations.get("ticket_promoted_bm_" + update._effective_user.language_code, greetings.translations["ticket_promoted_bm_en"]) + "\n" + ticket_card, ticket[2], connection_pool)
 
+###
 # Subfunction to generate ticket card
 def generate_ticket_card(connection_pool, ticket):
     ticket_id, assigned_agent_id, client_id, site_id, priority, state, description, comments, history = ticket
@@ -355,7 +359,9 @@ def generate_ticket_card(connection_pool, ticket):
     ticket_card += f"History: {history}\n"
     
     return ticket_card
-        
+
+###
+# Broadcast updates details
 async def notifyEVERYONE(text, client, connection_pool: ConnectionPool):
     chat_ids = get_all_support_agents(connection_pool)
     for chat_id_item in chat_ids:
@@ -364,6 +370,7 @@ async def notifyEVERYONE(text, client, connection_pool: ConnectionPool):
         await bot.send_message(chat_id=chat_id_item[0], text=text)
     await bot.send_message(chat_id=client, text=text)
 
+#validateion
 def validate_ticket_id(update):
     try:
         ticket_id = update.message.text.split()[1].strip()
