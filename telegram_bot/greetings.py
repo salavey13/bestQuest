@@ -13,6 +13,7 @@ translations = {
                 /get {ticket_id} - assign yourself to ticket
                 /do {ticket_id} - start progress
                 /finish {ticket_id} - finish ticket
+                /promote {ticket_id} - promote ticket
                 /estcho - view existing tickets.
                 /msg {nickname} {message} - Forward a message to a user
                 
@@ -27,6 +28,7 @@ translations = {
                  /get {ticket_id} - призначити себе квитку
                  /do {ticket_id} - почати прогрес
                  /finish {ticket_id} - закінчити тикет
+                 /promote {ticket_id} - тикет був розкручений.
                  /estcho - переглянути існуючі квитки
                  /msg {нік} {повідомлення} - переслати повідомлення користувачеві
                 
@@ -38,9 +40,10 @@ translations = {
                  /reg - Установите свой никнейм и зарегистрируйтесь как Агент
                  /regClient - Установите свой никнейм и зарегистрируйтесь как Клиент
                  /go - создать заявку на поддержку
-                 /get {ticket_id} - назначить себе билет
+                 /get {ticket_id} - назначить себе запрос в службу поддержки
                  /do {ticket_id} - начать прогресс
                  /finish {ticket_id} - завершить работу над заявкой
+                 /promote {ticket_id} - запромоутить заявку
                  /estcho - просмотр существующих заявок.
                  /msg {псевдоним} {сообщение} - переслать сообщение пользователю
 
@@ -210,6 +213,9 @@ translations = {
     "ticket_finished_bm_en" : "Ticket was finished. Check it out /estcho",
     "ticket_finished_bm_ru": "Запрос в службу поддержки выполнен. Чекай /estcho",
     "ticket_finished_bm_uk" : "Запит у службу підтримки виконано. Перевірте це /estcho",
+    "ticket_promoted_bm_en" : "Ticket was promoted. Check it out /estcho",
+    "ticket_promoted_bm_ru": "Запрос в службу поддержки был продвинут. Чекай /estcho",
+    "ticket_promoted_bm_uk" : "Запит у службу підтримки виконано. Перевірте це /estcho",
 
         # Add more translations if needed
     }

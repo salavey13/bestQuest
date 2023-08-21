@@ -335,7 +335,20 @@ def create_support_ticket(connection: Connection, Ticket_ID, Assigned_Agent_ID, 
     ''', (Ticket_ID, Assigned_Agent_ID, Client_ID, Site_ID, Priority, State, Description, Comments, History_str))
 
     # Save changes and close the connection
-    return connection.commit()
+    ticket_id = connection.commit()
+
+    # Retrieve details of the specified ticket
+    c.execute('''
+        SELECT *
+        FROM SupportTickets
+        WHERE Ticket_ID = ?
+    ''', (ticket_id,))
+    ticket_details = c.fetchone()
+
+    # Save changes and close the connection
+    connection.commit()
+
+    return ticket_details
 
     
 #This function allows you to create a new support ticket by providing the client's ID and the site's ID for which the ticket is created.
@@ -367,7 +380,6 @@ def change_ticket_state(connection: Connection, ticket_id, agent_id, new_state, 
     connection.commit()
 
     # return updated ticket
-    # Retrieve all open tickets assigned to the specified agent
     c.execute('''
         SELECT *
         FROM SupportTickets
@@ -472,27 +484,45 @@ def get_ticket_state(connection: Connection, ticket_id):
 
 #7. Function to Update Ticket Priority:
 @with_connection
-def update_ticket_priority(connection: Connection, ticket_id, priority, date, by_whom):
+def change_priority_and_add_comment(connection: Connection, ticket_id, priority, comment, date, by_whom):
+    # Connect to the SQLite database
+    c = connection.cursor()
     c.execute('''
-        SELECT History
+        SELECT History, Comments
         FROM SupportTickets
-        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
-    ''', (agent_id, ticket_id,))
+        WHERE Ticket_ID = ?
+    ''', (ticket_id,))
 
     ticket = c.fetchone()
     ticket_history = ticket[0] +"\nPriority was updateed: " + priority + " by " + by_whom + date
+    
+    comments = ""
+    try:
+        old_comment = ticket[1]
+        if old_comment is not None:
+            comments = old_comment + "\n" + comment + by_whom + date
+    except IndexError:
+        comments = comment + by_whom + date
 
-    # Connect to the SQLite database
-    c = connection.cursor()
     # Update the assigned agent for the specified ticket
     c.execute('''
         UPDATE SupportTickets
-        SET Priority = ?, History = ?
+        SET Priority = ?, History = ?, Comments = ?
         WHERE Ticket_ID = ?
-    ''', (priority, ticket_history, ticket_id))
+    ''', (priority, ticket_history, comments, ticket_id))
 
     # Save changes and close the connection
     connection.commit()
+    
+    # Retrieve details of the specified ticket
+    c.execute('''
+        SELECT *
+        FROM SupportTickets
+        WHERE Ticket_ID = ?
+    ''', (ticket_id,))
+    ticket_details = c.fetchone()    
+
+    return ticket_details
 #This function allows you to update the priority of a support ticket based on its ticket ID.
 
 #8. Function to Get Ticket Assignee:
@@ -516,8 +546,8 @@ def add_comment_to_ticket(connection: Connection, ticket_id, comment, date, by_w
     c.execute('''
         SELECT History
         FROM SupportTickets
-        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
-    ''', (agent_id, ticket_id,))
+        WHERE Ticket_ID = ?
+    ''', (ticket_id,))
 
     ticket = c.fetchone()
     ticket_history = ticket[0] +"\nComment addeded: " + comment + " by " + by_whom + date
@@ -535,8 +565,18 @@ def add_comment_to_ticket(connection: Connection, ticket_id, comment, date, by_w
         WHERE Ticket_ID = ?
     ''', (ticket_comments, ticket_history, ticket_id))
 
+    # Retrieve details of the specified ticket
+    c.execute('''
+        SELECT *
+        FROM SupportTickets
+        WHERE Ticket_ID = ?
+    ''', (ticket_id,))
+    ticket_details = c.fetchone()
+
     # Save changes and close the connection
     connection.commit()
+
+    return ticket_details
 #This function allows you to add a comment to a support ticket. The comment can be any additional information or updates related to the ticket.
 
 #10. Function to Get Ticket Comments:
