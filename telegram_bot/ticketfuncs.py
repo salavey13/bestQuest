@@ -3,7 +3,7 @@
 import logging
 import datetime, os
 import greetings
-from db.db import ConnectionPool, create_support_ticket, get_support_agent_by_id, get_client_by_id, get_all_support_agents, get_tickets
+from db.db import ConnectionPool, create_support_ticket, get_support_agent_by_id, get_client_by_id, get_all_support_agents, get_tickets, assign_agent_to_ticket, change_ticket_state
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Bot
 from telegram.ext import ConversationHandler, MessageHandler, CommandHandler
 
@@ -210,7 +210,7 @@ async def estcho(update, context, connection_pool: ConnectionPool):
 
         ticketCard = ticketCard + "No: " + str(Ticket_ID) + "\n"
         if Assigned_Agent_ID is not None:
-            ticketCard = ticketCard + "Agent: " + get_support_agent_by_id(connection_pool)[1] + "\n"
+            ticketCard = ticketCard + "Agent: " + get_support_agent_by_id(connection_pool, Assigned_Agent_ID)[1] + "\n"
         else:
             ticketCard = ticketCard + "Agent:\n"
         # TODO: only Clients can make tickets? i think not! ticketCard = "Client: " + get_client_by_id(connection_pool, Client_ID)[1] + "\n"
@@ -218,10 +218,165 @@ async def estcho(update, context, connection_pool: ConnectionPool):
         ticketCard = ticketCard + "State: " + State + "\n"
         ticketCard = ticketCard + "Description: " + Description + "\n"
         # ticketCard = ticketCard + "Comments: " + Comments + "\n"
-        # ticketCard = ticketCard + "History: " + History + "\n"
+        ticketCard = ticketCard + "History: " + History + "\n"
 
         ticket_list = ticket_list + "\n" + ticketCard
-    await update.message.reply_text(ticket_list)
+    await update.message.reply_text(ticket_list)\
+
+async def do(update, context, connection_pool: ConnectionPool):
+    # Save the request data to the SQLite database table
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%m")
+    by_whom = get_client_by_id(connection_pool, update.effective_user.id)
+    if by_whom is None:
+        by_whom = get_support_agent_by_id(connection_pool, update.effective_user.id)
+        if by_whom is None:
+            # New user - ask to register first
+            await update.message.reply_text(greetings.translations.get("regfirst_" + update._effective_user.language_code, greetings.translations["regfirst_en"]))
+            return ConversationHandler.END
+        
+    ticket = change_ticket_state(connection_pool, update.message.text.split()[1].strip(), update.effective_user.id, "In Progress", date, by_whom[1])
+    ticketCard = "Updated ticket:\n\n"
+
+    # display back
+    Ticket_ID = ticket[0]
+    Assigned_Agent_ID = ticket[1]
+    Client_ID = ticket[2]
+    Site_ID = ticket[3]
+    Priority = ticket[4]
+    State = ticket[5]
+    Description = ticket[6]
+    Comments = ticket[7]
+    History = ticket[8]
+    
+
+    ticketCard = ticketCard + "No: " + str(Ticket_ID) + "\n"
+    if Assigned_Agent_ID is not None:
+        ticketCard = ticketCard + "Agent: " + get_support_agent_by_id(connection_pool, Assigned_Agent_ID)[1] + "\n"
+    else:
+        ticketCard = ticketCard + "Agent:\n"
+    # only Clients can make tickets? i think not! 
+    Client = get_client_by_id(connection_pool, Client_ID)
+    if Client is None:
+        Client = get_support_agent_by_id(connection_pool, Client_ID)
+        if Client is not None:
+            ticketCard = ticketCard + "Client: " + Client[1] + "\n"
+    ticketCard = ticketCard + "Priority: " + Priority + "\n"
+    ticketCard = ticketCard + "State: " + State + "\n"
+    ticketCard = ticketCard + "Description: " + Description + "\n"
+    if Comments is not None:
+        ticketCard = ticketCard + "Comments: " + Comments + "\n"
+    ticketCard = ticketCard + "History: " + History + "\n"
+
+    await update.message.reply_text(ticketCard)
+
+    await notifyEVERYONE(greetings.translations.get("ticket_in_progress_bm_" + update._effective_user.language_code, greetings.translations["ticket_in_progress_bm_en"]) + "\n" + ticketCard, connection_pool)
+
+async def get(update, context, connection_pool: ConnectionPool):
+    # Save the request data to the SQLite database table
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%m")
+    by_whom = get_client_by_id(connection_pool, update.effective_user.id)
+    if by_whom is None:
+        by_whom = get_support_agent_by_id(connection_pool, update.effective_user.id)
+        if by_whom is None:
+            # New user - ask to register first
+            await update.message.reply_text(greetings.translations.get("regfirst_" + update._effective_user.language_code, greetings.translations["regfirst_en"]))
+            return ConversationHandler.END
+        
+    ticket = assign_agent_to_ticket(connection_pool, update.message.text.split()[1].strip(), update.effective_user.id, date, by_whom[1])
+    ticketCard = "Updated ticket:\n\n"
+
+    # display back
+    Ticket_ID = ticket[0]
+    Assigned_Agent_ID = ticket[1]
+    Client_ID = ticket[2]
+    Site_ID = ticket[3]
+    Priority = ticket[4]
+    State = ticket[5]
+    Description = ticket[6]
+    Comments = ticket[7]
+    History = ticket[8]
+    
+
+    ticketCard = ticketCard + "No: " + str(Ticket_ID) + "\n"
+    if Assigned_Agent_ID is not None:
+        ticketCard = ticketCard + "Agent: " + get_support_agent_by_id(connection_pool, Assigned_Agent_ID)[1] + "\n"
+    else:
+        ticketCard = ticketCard + "Agent:\n"
+    # only Clients can make tickets? i think not! 
+    Client = get_client_by_id(connection_pool, Client_ID)
+    if Client is None:
+        Client = get_support_agent_by_id(connection_pool, Client_ID)
+        if Client is not None:
+            ticketCard = ticketCard + "Client: " + Client[1] + "\n"
+    ticketCard = ticketCard + "Priority: " + Priority + "\n"
+    ticketCard = ticketCard + "State: " + State + "\n"
+    ticketCard = ticketCard + "Description: " + Description + "\n"
+    if Comments is not None:
+        ticketCard = ticketCard + "Comments: " + Comments + "\n"
+    ticketCard = ticketCard + "History: " + History + "\n"
+
+    await update.message.reply_text(ticketCard)
+
+    await notifyEVERYONE(greetings.translations.get("ticket_assigned_bm_" + update._effective_user.language_code, greetings.translations["ticket_assigned_bm_en"]) + "\n" + ticketCard, connection_pool)
+
+async def finish(update, context, connection_pool: ConnectionPool):
+    # Save the request data to the SQLite database table
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%m")
+    by_whom = get_client_by_id(connection_pool, update.effective_user.id)
+    ticket = None
+    if by_whom is None:
+        by_whom = get_support_agent_by_id(connection_pool, update.effective_user.id)
+        if by_whom is None:
+            # New user - ask to register first
+            await update.message.reply_text(greetings.translations.get("regfirst_" + update._effective_user.language_code, greetings.translations["regfirst_en"]))
+            return ConversationHandler.END
+        else :
+            ticket = change_ticket_state(connection_pool, update.message.text.split()[1].strip(), update.effective_user.id, "Resolved", date, by_whom[1])
+    else:
+        ticket = change_ticket_state(connection_pool, update.message.text.split()[1].strip(), update.effective_user.id, "Closed", date, by_whom[1])
+
+    if ticket is not None:
+        ticketCard = "Updated ticket:\n\n"
+
+        # display back
+        Ticket_ID = ticket[0]
+        Assigned_Agent_ID = ticket[1]
+        Client_ID = ticket[2]
+        Site_ID = ticket[3]
+        Priority = ticket[4]
+        State = ticket[5]
+        Description = ticket[6]
+        Comments = ticket[7]
+        History = ticket[8]
+        
+
+        ticketCard = ticketCard + "No: " + str(Ticket_ID) + "\n"
+        if Assigned_Agent_ID is not None:
+            ticketCard = ticketCard + "Agent: " + get_support_agent_by_id(connection_pool, Assigned_Agent_ID)[1] + "\n"
+        else:
+            ticketCard = ticketCard + "Agent:\n"
+        # only Clients can make tickets? i think not! 
+        Client = get_client_by_id(connection_pool, Client_ID)
+        if Client is None:
+            Client = get_support_agent_by_id(connection_pool, Client_ID)
+            if Client is not None:
+                ticketCard = ticketCard + "Client: " + Client[1] + "\n"
+        ticketCard = ticketCard + "Priority: " + Priority + "\n"
+        ticketCard = ticketCard + "State: " + State + "\n"
+        ticketCard = ticketCard + "Description: " + Description + "\n"
+        if Comments is not None:
+            ticketCard = ticketCard + "Comments: " + Comments + "\n"
+        ticketCard = ticketCard + "History: " + History + "\n"
+
+        await update.message.reply_text(ticketCard)
+        await notifyEVERYONE(greetings.translations.get("ticket_finished_bm_" + update._effective_user.language_code, greetings.translations["ticket_finished_bm_en"]) + "\n" + ticketCard, connection_pool)
+
+async def notifyEVERYONE(text, connection_pool: ConnectionPool):
+    chat_ids = get_all_support_agents(connection_pool)
+    for chat_id_item in chat_ids:
+        # Sending the message
+        bot = Bot(token=os.environ["TGBOTKEY"])
+        await bot.send_message(chat_id=chat_id_item[0], text=text)
 # In this updated code, I've added the parse_automation_message function as a MessageHandler to the AUTOMATION_SHORTCUT state. This function parses and validates the precomposed automation message and extracts the required fields. If the message is valid, it creates a dictionary (request_data) with the extracted fields. Then, it calls the save_request_to_database function to save the request data to an SQLite database table.
 
 # The save_request_to_database function connects to the SQLite database file (support_requests.db), inserts the request data into the support_requests table, and commits the changes.

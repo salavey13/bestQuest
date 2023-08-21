@@ -342,38 +342,77 @@ def create_support_ticket(connection: Connection, Ticket_ID, Assigned_Agent_ID, 
 
 #2. Function to Change Ticket State:
 @with_connection
-def change_ticket_state(connection: Connection, ticket_id, new_state, date, by_whom):
+def change_ticket_state(connection: Connection, ticket_id, agent_id, new_state, date, by_whom):
     # Connect to the SQLite database
     c = connection.cursor()
+
+    c.execute('''
+        SELECT History
+        FROM SupportTickets
+        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
+    ''', (agent_id, ticket_id,))
+    connection.commit()
+
+    ticket = c.fetchone()
+    ticket_history = ticket[0] +"\nState changed to: " + new_state + " by " + by_whom + "\n" + date
 
     # Update the state of the specified ticket
     c.execute('''
         UPDATE SupportTickets
-        SET State = ?
-        WHERE Ticket_ID = ?
-    ''', (new_state, ticket_id))
+        SET State = ? , History = ?
+        WHERE Ticket_ID = ? AND Assigned_Agent_ID = ?
+    ''', (new_state, ticket_history, ticket_id, agent_id))
 
     # Save changes and close the connection
     connection.commit()
+
+    # return updated ticket
+    # Retrieve all open tickets assigned to the specified agent
+    c.execute('''
+        SELECT *
+        FROM SupportTickets
+        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
+    ''', (agent_id, ticket_id,))
+    connection.commit()
+
+    ticket = c.fetchone()
+    return ticket
 #This function allows you to update the state of a support ticket identified by its ticket ID.
 
 #3. Function to Assign an Agent to a Ticket:
 @with_connection
 def assign_agent_to_ticket(connection: Connection, ticket_id, agent_id, date, by_whom):
-    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Agent assigned: " + get_support_agent_by_id(connection, agent_id)[1] + " by " + get_client_by_id(connection, by_whom)[1] + date
-    
+    c.execute('''
+        SELECT History
+        FROM SupportTickets
+        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
+    ''', (agent_id, ticket_id,))
+
+    ticket = c.fetchone()
+    ticket_history = ticket[0] +"\nAgent assigned: " + by_whom + "\n" + date
     # Connect to the SQLite database
     c = connection.cursor()
 
     # Update the assigned agent for the specified ticket
     c.execute('''
         UPDATE SupportTickets
-        SET Assigned_Agent_ID = ?
+        SET Assigned_Agent_ID = ?, History = ?
         WHERE Ticket_ID = ?
-    ''', (agent_id, ticket_id))
+    ''', (agent_id, ticket_history, ticket_id))
 
     # Save changes and close the connection
     connection.commit()
+
+    # return updated ticket
+    # Retrieve all open tickets assigned to the specified agent
+    c.execute('''
+        SELECT *
+        FROM SupportTickets
+        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
+    ''', (agent_id, ticket_id,))
+
+    ticket = c.fetchone()
+    return ticket
 #This function allows you to assign an agent to a support ticket, given the ticket ID and the agent's ID.
 
 #4. Function to Get All Open Tickets for an Agent:
@@ -434,7 +473,14 @@ def get_ticket_state(connection: Connection, ticket_id):
 #7. Function to Update Ticket Priority:
 @with_connection
 def update_ticket_priority(connection: Connection, ticket_id, priority, date, by_whom):
-    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Priority was updateed: " + priority + " by " + by_whom + date
+    c.execute('''
+        SELECT History
+        FROM SupportTickets
+        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
+    ''', (agent_id, ticket_id,))
+
+    ticket = c.fetchone()
+    ticket_history = ticket[0] +"\nPriority was updateed: " + priority + " by " + by_whom + date
 
     # Connect to the SQLite database
     c = connection.cursor()
@@ -467,7 +513,14 @@ def get_ticket_assignee(connection: Connection, ticket_id):
 #9. Function to Add a Comment to a Ticket:
 @with_connection
 def add_comment_to_ticket(connection: Connection, ticket_id, comment, date, by_whom):
-    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Comment addeded: " + comment + " by " + by_whom + date
+    c.execute('''
+        SELECT History
+        FROM SupportTickets
+        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
+    ''', (agent_id, ticket_id,))
+
+    ticket = c.fetchone()
+    ticket_history = ticket[0] +"\nComment addeded: " + comment + " by " + by_whom + date
     
     # Connect to the SQLite database and add a new comment to the ticket
     ticket_comments = get_ticket_comments(connection, ticket_id)
@@ -503,8 +556,15 @@ def get_ticket_comments(connection: Connection, ticket_id):
 
 #11. Function to Close a Ticket:
 @with_connection
-def close_ticket(connection: Connection, ticket_id, date, by_whom):
-    ticket_history = get_ticket_history(connection, ticket_id) + "\n" + "Date Of Closure: " + date + " by " + by_whom
+def close_ticket(connection: Connection, ticket_id, agent_id, date, by_whom):
+    c.execute('''
+        SELECT History
+        FROM SupportTickets
+        WHERE Assigned_Agent_ID = ? AND Ticket_ID = ?
+    ''', (agent_id, ticket_id,))
+
+    ticket = c.fetchone()
+    ticket_history = ticket[0] +"\nDate Of Closure: " + date + " by " + by_whom
     
     # Connect to the SQLite database and close the specified ticket
     c = connection.cursor()
@@ -533,7 +593,7 @@ def get_ticket_history(connection: Connection, ticket_id):
         WHERE Ticket_ID = ?
     ''', (ticket_id,))
     ticket_history = c.fetchone()
-    return ticket_history
+    return ticket_history[0]
 
 #13. 
 @with_connection

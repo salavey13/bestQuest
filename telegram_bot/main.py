@@ -1,6 +1,6 @@
 import db.db #ConnectionPool, insert_data, get_data, get_random_question_for_skill
 from db.db import ConnectionPool, with_connection
-from ticketfuncs import DESCRIPTION, PRICE_CAP, URGENCY, EXAMPLE_LINK, AUTOMATION_SHORTCUT, ANSWER, CONTINUE, estcho, ask_price_cap, ask_urgency, ask_example_link, provide_automation_shortcut, parse_automation_message, start_support_request
+from ticketfuncs import DESCRIPTION, PRICE_CAP, URGENCY, EXAMPLE_LINK, AUTOMATION_SHORTCUT, ANSWER, CONTINUE, estcho, ask_price_cap, ask_urgency, ask_example_link, provide_automation_shortcut, parse_automation_message, start_support_request, get, do, finish
 from quizfuncs import start_quiz,start_rating_quiz, handle_answer, handle_continue, send_engagement_message, start_quiz_for_top_skills, show_available_skills
 import greetings
 import os
@@ -591,7 +591,10 @@ def main():
     support_request_handler = ConversationHandler(
         entry_points=[CommandHandler('ticket', lambda update, context: start_support_request(update, context, connection_pool)), 
                     CommandHandler("go", lambda update, context: start_support_request(update, context, connection_pool)), 
-                    CommandHandler("estcho", lambda update, context: estcho(update, context, connection_pool))],
+                    CommandHandler("estcho", lambda update, context: estcho(update, context, connection_pool)), 
+                    CommandHandler("get", lambda update, context: get(update, context, connection_pool)), 
+                    CommandHandler("do", lambda update, context: do(update, context, connection_pool)), 
+                    CommandHandler("finish", lambda update, context: finish(update, context, connection_pool))],
         states={
             DESCRIPTION: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_price_cap)],
             PRICE_CAP: [MessageHandler(filters.TEXT & ~filters.COMMAND, ask_urgency)],

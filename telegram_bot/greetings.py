@@ -10,6 +10,10 @@ translations = {
                 /reg - Set your nickname and register as support Agent
                 /regClient - Set your nickname and register as Client
                 /go - Create Support ticket
+                /get {ticket_id} - assign yourself to ticket
+                /do {ticket_id} - start progress
+                /finish {ticket_id} - finish ticket
+                /estcho - view existing tickets.
                 /msg {nickname} {message} - Forward a message to a user
                 
                 But dirst of all check out /topquiz or /start🚀""",
@@ -20,6 +24,10 @@ translations = {
                  /reg - Встановіть свій псевдонім і зареєструйтеся як агент підтримки
                  /regClient - Встановіть свій псевдонім і зареєструйтеся як клієнт
                  /go - створити заявку підтримки
+                 /get {ticket_id} - призначити себе квитку
+                 /do {ticket_id} - почати прогрес
+                 /finish {ticket_id} - закінчити тикет
+                 /estcho - переглянути існуючі квитки
                  /msg {нік} {повідомлення} - переслати повідомлення користувачеві
                 
                  Але перш за все перевірте /topquiz або /start🚀""",
@@ -30,6 +38,10 @@ translations = {
                  /reg - Установите свой никнейм и зарегистрируйтесь как Агент
                  /regClient - Установите свой никнейм и зарегистрируйтесь как Клиент
                  /go - создать заявку на поддержку
+                 /get {ticket_id} - назначить себе билет
+                 /do {ticket_id} - начать прогресс
+                 /finish {ticket_id} - завершить работу над заявкой
+                 /estcho - просмотр существующих заявок.
                  /msg {псевдоним} {сообщение} - переслать сообщение пользователю
 
                  Но для начала зацени /topquiz или /start🚀""",
@@ -189,6 +201,15 @@ translations = {
     "ticket_success_bm_en" : "New Support request was just created! Check it out /estcho",
     "ticket_success_bm_ru": "Только что создан новый запрос в службу поддержки! Чекай /estcho",
     "ticket_success_bm_uk" : "Щойно створено новий запит на підтримку! Перевірте це /estcho",
+    "ticket_assigned_bm_en" : "Ticket was assigned to agent. Check it out /estcho",
+    "ticket_assigned_bm_ru": "Запрос в службу поддержки успешно заасайнен. Чекай /estcho",
+    "ticket_assigned_bm_uk" : "Квиток було передано агенту. Перевірте це /estcho",
+    "ticket_in_progress_bm_en" : "Ticket is in progress. Check it out /estcho",
+    "ticket_in_progress_bm_ru": "Запрос в службу поддержки принят к исполнению. Чекай /estcho",
+    "ticket_in_progress_bm_uk" : "Запит у службу підтримки прийнято до виконання. Перевірте це /estcho",
+    "ticket_finished_bm_en" : "Ticket was finished. Check it out /estcho",
+    "ticket_finished_bm_ru": "Запрос в службу поддержки выполнен. Чекай /estcho",
+    "ticket_finished_bm_uk" : "Запит у службу підтримки виконано. Перевірте це /estcho",
 
         # Add more translations if needed
     }
