@@ -30,23 +30,37 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/SALAVEY13/bestQuest">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">project_title</h3>
+<h3 align="center">Best Quest - Educational Telegram Bot based Platform</h3>
 
   <p align="center">
-    project_description
+    Would you visit a virtual career centre to find out more about a potential employer?
+
+Web-design company oneSitePls.framer.ai has created such a platform, where job candidates can experience what it's like to work there and access resources to learn about what they do. Job applicants can participate in events, podcasts, and conversations with current employees. They could also meet with an avatar of SALAVEY13, who will coach and guide them through the hiring process.
+
+Both prospective workers and the recruiting agent stand to gain from the virtual hiring process.
+
+📌 Candidates for junior positions could have insights into company culture and daily life, oneSitePls explained in its blog.
+📌 Job seekers will be able to experience first-hand the features they will be working on, such as user-friendly AI website creation and handling support tickets.
+📌 As an employer, it can have a first-hand idea of how well-versed in web design future employees are.
+
+The initiative should also encourage diversity. It may lower geographic barriers and focuses on potential employees' skills rather than credentials such as a university degree.
+
+Non-designer candidates who experience the platform for the first time will be invited to an “Innovation Lab” where they can learn about web design processes and tune into employee testimonials.
+
+Do you think recruitment is the future of the digital world and virtual experiences?
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/SALAVEY13/bestQuest"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://github.com/SALAVEY13/bestQuest">View Demo</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
+    <a href="https://github.com/SALAVEY13/bestQuest/issues">Report Bug</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
+    <a href="https://github.com/SALAVEY13/bestQuest/issues">Request Feature</a>
   </p>
 </div>
 
@@ -80,27 +94,32 @@
 
 
 
-<!-- ABOUT THE PROJECT -->
+<!-- ABOUT THE PROJECT Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`-->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Product Name Screen Shot][product-screenshot]](https://onesitepls.framer.ai)
+Would you visit a virtual career centre to find out more about a potential employer?
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`
+Web-design company oneSitePls.framer.ai has created such a platform, where job candidates can experience what it's like to work there and access resources to learn about what they do. Job applicants can participate in events, podcasts, and conversations with current employees. They could also meet with an avatar of CEO SALAVEY13, who will coach and guide them through the hiring process.
 
+Both prospective workers and the recruiting agent stand to gain from the virtual hiring process.
+
+📌 Candidates for junior positions could have insights into company culture and daily life, oneSitePls explained in its blog.
+📌 Job seekers will be able to experience first-hand the features they will be working on, such as user-friendly AI website creation and handling support tickets.
+📌 As an employer, it can have a first-hand idea of how well-versed in web design future employees are.
+
+The initiative should also encourage diversity. It may lower geographic barriers and focuses on potential employees' skills rather than credentials such as a university degree.
+
+Non-designer candidates who experience the platform for the first time will be invited to an “Innovation Lab” where they can learn about web design processes and tune into employee testimonials.
+
+Do you think recruitment is the future of the digital world and virtual experiences?
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 ### Built With
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* [![Python][Python.com]][Python-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -115,9 +134,9 @@ To get a local copy up and running follow these simple example steps.
 ### Prerequisites
 
 This is an example of how to list things you need to use the software and how to install them.
-* npm
+* python-telegram-bot
   ```sh
-  npm install npm@latest -g
+  pip install python-telegram-bot
   ```
 
 ### Installation
@@ -125,11 +144,11 @@ This is an example of how to list things you need to use the software and how to
 1. Get a free API Key at [https://example.com](https://example.com)
 2. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/SALAVEY13/bestQuest.git
    ```
-3. Install NPM packages
+3. Install python-telegram-bot packages
    ```sh
-   npm install
+   pip install python-telegram-bot
    ```
 4. Enter your API in environment variables and download you youtube API's "client-secret.json"
    ```txt
@@ -158,7 +177,7 @@ This is an example of how to list things you need to use the software and how to
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+_For example, please refer to the [Documentation](https://oneSitePls.framer.ai)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -167,12 +186,12 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Quiz source scrape/generation tools
+- [ ] TGBot for quiz training
+- [ ] TGBot for support ticket handling
+    - [ ] Agent/Client Registration and DMs
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/SALAVEY13/bestQuest/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -208,9 +227,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Pavel Solovyev - [@twitter_handle](https://twitter.com/twitter_handle) - salavey13@gmail.com
+Pavel Solovyev - [@yt_handle](https://youtube.com/SALAVEY13) - salavey13@gmail.com
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/SALAVEY13/bestQuest](https://github.com/SALAVEY13/bestQuest)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -229,32 +248,6 @@ Project Link: [https://github.com/github_username/repo_name](https://github.com/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/github_username/repo_name/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
-[Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
-[Laravel-url]: https://laravel.com
-[Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
-[Bootstrap-url]: https://getbootstrap.com
-[JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+[Python.com]: https://python.com
+[Python]: https://img.shields.io/badge/Python-blue
+[Python-url]: https://python.com
