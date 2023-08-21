@@ -220,6 +220,7 @@ async def do(update, context, connection_pool: ConnectionPool):
     
     date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")  # Corrected the time format
 
+    user_id = update.effective_user.id
     by_whom = get_client_by_id(connection_pool, update.effective_user.id)
     if by_whom is None:
         by_whom = get_support_agent_by_id(connection_pool, update.effective_user.id)

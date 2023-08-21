@@ -394,6 +394,8 @@ def change_ticket_state(connection: Connection, ticket_id, agent_id, new_state, 
 #3. Function to Assign an Agent to a Ticket:
 @with_connection
 def assign_agent_to_ticket(connection: Connection, ticket_id, agent_id, date, by_whom):
+    # Connect to the SQLite database
+    c = connection.cursor()
     c.execute('''
         SELECT History
         FROM SupportTickets
@@ -402,8 +404,7 @@ def assign_agent_to_ticket(connection: Connection, ticket_id, agent_id, date, by
 
     ticket = c.fetchone()
     ticket_history = ticket[0] +"\nAgent assigned: " + by_whom + "\n" + date
-    # Connect to the SQLite database
-    c = connection.cursor()
+    
 
     # Update the assigned agent for the specified ticket
     c.execute('''
