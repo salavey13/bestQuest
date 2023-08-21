@@ -59,7 +59,6 @@ class ConnectionPool:
     def REcreate_table(self, table_name: str, sql_command):
         if self.table_exists(table_name):
             print(f"Table '{table_name}' already exists. Recreating.")
-            return
 
         connection = self.get_connection()
         cursor = connection.cursor()
@@ -131,7 +130,7 @@ def init_data(connection: Connection):
             Achievements TEXT,
             Verification_Status TEXT,
             Blue_Checkmark TEXT,
-            Chat_ID INTEGER,
+            MMR INTEGER,
             Number_of_Executed_Tickets INTEGER,
             Positive_Reviews INTEGER,
             Preferred_Lang TEXT
@@ -251,7 +250,7 @@ def init_data(connection: Connection):
     
     
     connection.commit()
-    creategg(connection)
+    #creategg(connection)
 
 
 
@@ -317,6 +316,8 @@ def creategg(connection: Connection):
         INSERT INTO Hello (ID, GG)
         VALUES (?, ?)
     ''', (None, "GG"))
+
+    connection.commit()
 
 # most important ones for managing support tickets. We'll optimize the functions for efficiency and ease of use. Here's a list of functions you might need:
 #1. Function to Create a New Support Ticket:
@@ -737,6 +738,7 @@ def get_all_clients(connection: Connection):
         FROM Clients
     ''')
     clients = c.fetchall()
+    return clients
 
 @with_connection
 def get_client_by_id(connection: Connection, client_id):
@@ -747,27 +749,42 @@ def get_client_by_id(connection: Connection, client_id):
         WHERE Client_ID = ?
     ''', (client_id,))
     client = c.fetchone()
-
+    return client
 
 #5. Functions for the "AgentStatistics" portion of SupportAgents table:
 @with_connection
 def get_all_agent_statistics(connection: Connection):
     c = connection.cursor()
     c.execute('''
-        SELECT Agent_ID, Number_of_Requests, Number_of_Executed_Requests, Positive_Reviews
+        SELECT Agent_ID, MMR, Number_of_Executed_Tickets, Positive_Reviews
         FROM SupportAgents
     ''')
     agent_statistics = c.fetchall()
+    return agent_statistics
 
 @with_connection
 def get_agent_statistics_by_id(connection: Connection, agent_id):
     c = connection.cursor()
     c.execute('''
-        SELECT Agent_ID, Number_of_Requests, Number_of_Executed_Requests, Positive_Reviews
+        SELECT MMR, Number_of_Executed_Tickets, Positive_Reviews
         FROM SupportAgents
         WHERE Agent_ID = ?
     ''', (agent_id,))
     agent_statistics = c.fetchone()
+    return agent_statistics
+
+@with_connection
+def update_agent_rating(connection: Connection, Agent_ID, MMR):
+    c = connection.cursor()
+    # Update the support agent in the database
+    c.execute('''
+        UPDATE SupportAgents
+        SET MMR = ? WHERE Agent_ID = ?
+    ''', (MMR, Agent_ID,))
+    
+    # Save changes and return True to indicate successful update
+    connection.commit()
+    return True
 # One essential function that I recommend is a function to update the details of a support agent. This function allows you to modify the information of a support agent in the database. Here's an example implementation:
 @with_connection
 def update_support_agent(connection: Connection, agent_id, name=None, discord=None, skills=None, price_map=None, achievements=None, verification_status=None, blue_checkmark=None):
@@ -973,17 +990,33 @@ def main():
 
     # # Create the Support Agents table
     ##########################
+    connection_pool.REcreate_table("SupportAgents", '''
+        CREATE TABLE IF NOT EXISTS  SupportAgents (
+            Agent_ID INTEGER PRIMARY KEY,
+            Nickname TEXT,
+            Discord TEXT,
+            Skills TEXT,
+            Price_Map TEXT,
+            Achievements TEXT,
+            Verification_Status TEXT,
+            Blue_Checkmark TEXT,
+            MMR INTEGER,
+            Number_of_Executed_Tickets INTEGER,
+            Positive_Reviews INTEGER,
+            Preferred_Lang TEXT
+        )
+    ''')
     # # Get the absolute path to the Agents tsv file
-    # file_path = os.path.abspath("telegram_bot\\db\\Agents.tsv")
-    # # Check if the file exists
-    # if os.path.exists(file_path):
-    #     print(file_path)
-    #     update_from_tsv(connection_pool, "SupportAgents", file_path)
-    # else:
-    #     print(f"File not found!: {file_path}")
-    #     save_to_csv(connection_pool, "SupportAgents", file_path)
-    # data = get_data(connection_pool, "SupportAgents") 
-    # print(data) 
+    file_path = os.path.abspath("telegram_bot\\db\\Agents.tsv")
+    # Check if the file exists
+    if os.path.exists(file_path):
+        print(file_path)
+        update_from_tsv(connection_pool, "SupportAgents", file_path)
+    else:
+        print(f"File not found!: {file_path}")
+        save_to_csv(connection_pool, "SupportAgents", file_path)
+    data = get_data(connection_pool, "SupportAgents") 
+    print(data) 
 
     # connection_pool.create_table("SupportAgents", '''
     #     CREATE TABLE IF NOT EXISTS SupportAgents (
@@ -1004,23 +1037,23 @@ def main():
 
     # # Create the Clients table
     ##########################
-    #connection_pool.create_table("Clients", '''
-    connection_pool.REcreate_table("Clients", '''
-        CREATE TABLE IF NOT EXISTS Clients (
-            Client_ID INTEGER PRIMARY KEY,
-            Nickname TEXT,
-            Discord_Client TEXT,
-            Application_Description TEXT,
-            Required_Skills TEXT,
-            Application_Status TEXT
-            Chat_ID INTEGER,
-            Number_of_Resolved_Tickets INTEGER,
-            Positive_Reviews INTEGER,
-            Preferred_Lang TEXT
-        )
-    ''')
-    data = get_data(connection_pool, "Clients") 
-    print(data)
+    ##connection_pool.create_table("Clients", '''
+    # connection_pool.REcreate_table("Clients", '''
+    #     CREATE TABLE IF NOT EXISTS Clients (
+    #         Client_ID INTEGER PRIMARY KEY,
+    #         Nickname TEXT,
+    #         Discord_Client TEXT,
+    #         Application_Description TEXT,
+    #         Required_Skills TEXT,
+    #         Application_Status TEXT
+    #         Chat_ID INTEGER,
+    #         Number_of_Resolved_Tickets INTEGER,
+    #         Positive_Reviews INTEGER,
+    #         Preferred_Lang TEXT
+    #     )
+    # ''')
+    # data = get_data(connection_pool, "Clients") 
+    # print(data)
 
     # # Create the SupportTickets table
     ##########################

@@ -32,3 +32,7 @@ telegram_bot/db/input_file.txtsome_text_file.txt
 telegram_bot/__pycache__/ticketfuncs.cpython-311.pyc
 your_database.db
 your_database.db
+your_database.db
+telegram_bot/db/Agents.tsv
+telegram_bot/db/Agents.tsv.bk_orig
+telegram_bot/db/Agents.tsv.bk_to

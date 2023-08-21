@@ -101,12 +101,21 @@ def check_blocked_user(func) -> None:
             return
         return func(update, context)
     return wrapper
+# let those who is unable to comprehend chill
+def check_blocked_user3(func) -> None:
+    @wraps(func)
+    def wrapper3(update, context, connection_pool) -> None:
+        if update.effective_user and update.effective_user.id in blocked_users:
+            logger.warning(f"Blocked user {update.effective_user.name} attempted to access command: {update.message.text}")
+            return
+        return func(update, context, connection_pool)
+    return wrapper3
     
 
 
 NEWUSER, START, AGRESSOR = range(3)
 NICKNAME, DISCORD = range(2) #PHOTO, 
-#@check_blocked_user
+@check_blocked_user3
 async def prestart(update: Update, context: ContextTypes.DEFAULT_TYPE, connection_pool: ConnectionPool) -> int:#
     if update.effective_user and update.effective_user.id in blocked_users:
         logger.warning(f"Blocked user {update.effective_user.name} attempted to access command: {update.message.text}")
@@ -210,7 +219,7 @@ async def prestart(update: Update, context: ContextTypes.DEFAULT_TYPE, connectio
 
 #     return AGRESSOR
 
-# @check_blocked_user
+@check_blocked_user
 async def agressor(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if update.effective_user and update.effective_user.id in blocked_users:
         logger.warning(f"Blocked user {update.effective_user.name} attempted to access command: {update.message.text}")
@@ -287,6 +296,7 @@ async def skip_nickname(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
                     #     return DISCORD
 
+@check_blocked_user3
 async def discord(update: Update, context: ContextTypes.DEFAULT_TYPE, connection_pool: ConnectionPool) -> int:
     # Stores the discord
     user_discord = update.message.text
@@ -399,7 +409,7 @@ def create_reply_keyboard(question, answer, fake_answer):
 @check_blocked_user
 async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Display a help message"""
-    # TODO: implement greetings
+    # Greetings
     if update.effective_user.language_code == "en" :
         await update.message.reply_text(greetings.translations.get("help_" + update._effective_user.language_code, greetings.translations.get("help_en")))
     elif update.effective_user.language_code == "uk":
@@ -417,8 +427,8 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 # # # MSG HANDLER # ## # #
 ##########################
 ##########################
-@check_blocked_user
-async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, connection_pool: ConnectionPool) -> None:
+@check_blocked_user3
+async def msg_handler(update: Update,  context: ContextTypes.DEFAULT_TYPE, connection_pool:ConnectionPool):
     """Forward message to registered user"""
     bot = telegram.Bot(token=os.environ["TGBOTKEY"])
 
@@ -433,71 +443,46 @@ async def msg_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, connec
         remote_nickname = update.message.text.split()[1]
         message_text = ' '.join(update.message.text.split()[2:])
         remote_user = None
-        if remote_nickname != "Anonimous":
-            remote_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
+        local_user = db.db.get_support_agent_by_id(connection_pool, update.effective_user.id)
+        if local_user is None :
+            local_user = db.db.get_client_by_id(connection_pool, update.effective_user.id)
+        if local_user is not None :
+            if remote_nickname != "Anonimous":
+                remote_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
+                if remote_user is None :
+                        remote_user = db.db.get_client_by_id(connection_pool, update.effective_user.id)
+                    
 
-            if remote_user is not None :
-                local_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
-                # message_text = "Вам сообщение от " + TODO: CHECK THAT REGISTERED AND GET OWN NICKNAME  +" : " + message_text
-                chat_id = remote_user[0]
+                if remote_user is not None :
+                    message_text = "Вам сообщение от " +  local_user[1]  +" : " + message_text
+                    chat_id = remote_user[0]
 
-                # Sending the message
-                await bot.send_message(chat_id=chat_id, text=message_text)
-                
-            elif remote_nickname == "EVERYONE" :
-                chat_ids = db.db.get_all_support_agents(connection_pool)
-                for chat_id_item in chat_ids:
                     # Sending the message
-                    await bot.send_message(chat_id=chat_id_item[0], text=message_text)
+                    await bot.send_message(chat_id=chat_id, text=message_text)
+                    
+                elif remote_nickname == "EVERYONE" :
+                    message_text = "Всем сообщение от " +  local_user[1]  +" : " + message_text
+                    chat_ids = db.db.get_all_support_agents(connection_pool)
+                    for chat_id_item in chat_ids:
+                        # Sending the message
+                        await bot.send_message(chat_id=chat_id_item[0], text=message_text)
+                    #secret agent:)
+                    #await bot.send_message(chat_id="", text=message_text + " твой чат захардкодил)")
+                else :
+                    # Oops case
+                    await update.message.reply_text("Can't find user with Nickname " + remote_nickname)
             else :
-                # Oops case
-                await update.message.reply_text("Can't find user with Nickname " + remote_nickname)
+                await update.message.reply_text("Anonymous'ы могут получать только общие сообщения?")
         else :
-            await update.message.reply_text("To Anonymous, really?")
+            await update.message.reply_text("Anonymous, сначала /reg ;)")
 ##########################
 ##########################
 
 
-# # # new_ticket_handler
+# # # start_support_request
 ##########################
 ##########################
-@check_blocked_user
-async def new_ticket_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, connection_pool: ConnectionPool) -> None:
-    """Create new Ticket"""
-    bot = telegram.Bot(token=os.environ["TGBOTKEY"])
-
-    # Replace CHAT_ID with the ID of the chat you want to send the message to
-    remote_chat_id = '413553377'
-
-    # Replace MESSAGE_TEXT with the text you want to send
-    message_text = 'Hello, how are you?'
-
-    # Validate input
-    if validate_forward_input(update.message.text) :
-        remote_nickname = update.message.text.split()[1]
-        message_text = ' '.join(update.message.text.split()[2:])
-        remote_user = None
-        if remote_nickname != "Anonimous":
-            remote_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
-
-            if remote_user is not None :
-                local_user = db.db.get_support_agent_by_nickname(connection_pool, remote_nickname)
-                # message_text = "Вам сообщение от " + TODO: CHECK THAT REGISTERED AND GET OWN NICKNAME  +" : " + message_text
-                chat_id = remote_user[0]
-
-                # Sending the message
-                await bot.send_message(chat_id=chat_id, text=message_text)
-                
-            elif remote_nickname == "EVERYONE" :
-                chat_ids = db.db.get_all_support_agents(connection_pool)
-                for chat_id_item in chat_ids:
-                    # Sending the message
-                    await bot.send_message(chat_id=chat_id_item[0], text=message_text)
-            else :
-                # Oops case
-                await update.message.reply_text("Can't find user with Nickname " + remote_nickname)
-        else :
-            await update.message.reply_text("To Anonymous, really?")
+#  -> ticketfuncs.py
 ##########################
 ##########################
 
@@ -584,7 +569,7 @@ def main():
     application.add_handler(CommandHandler("estchoposkilam", show_available_skills))
     application.add_handler(CommandHandler("help", help_handler))
     application.add_handler(CommandHandler("msg", lambda update, context: msg_handler(update, context, connection_pool)))
-    
+    #application.add_handler(CommandHandler("msg", msg_handler))
  #   application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, lambda update, context: handle_answer(update, context, connection_pool)))
  #   application.add_handler(MessageHandler(filters.Regex('^Continue|Продолжить|Продовжити$'), lambda update, context: handle_continue(update, context, connection_pool)))
 

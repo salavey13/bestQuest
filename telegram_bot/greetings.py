@@ -3,127 +3,135 @@
 
 ################
 translations = {
-    "help_en": """"🤖 Welcome to the Telegram Bot Help! Here are the available commands:
+    "help_en": """"🤖 Welcome to the oneSitePls Bot Help! Here are the available commands:
 
                 /help - Display this help message
+                /start - Welcome message
                 /reg - Set your nickname and register as support Agent
                 /regClient - Set your nickname and register as Client
-                /showskills - Show skills that you can learn right now
+                /go - Create Support ticket
                 /msg {nickname} {message} - Forward a message to a user
                 
                 But dirst of all check out /topquiz or /start🚀""",
-    "help_uk": """🤖 Ласкаво просимо до довідки Telegram Bot! Ось доступні команди:
+    "help_uk": """🤖 Вітаємо в довідці oneSitePls Bot! Ось доступні команди:
 
-                 /help - Показати це повідомлення довідки
-                 /reg - Встановіть свій псевдонім і зареєструйтеся як агент
+                 /help - відобразити це повідомлення довідки
+                 /start - Вітальне повідомлення
+                 /reg - Встановіть свій псевдонім і зареєструйтеся як агент підтримки
                  /regClient - Встановіть свій псевдонім і зареєструйтеся як клієнт
-                 /showskills - Покажіть навички, які ви можете навчитися прямо зараз
-                 /msg {нік} {повідомлення} - Переслати повідомлення користувачеві
+                 /go - створити заявку підтримки
+                 /msg {нік} {повідомлення} - переслати повідомлення користувачеві
+                
                  Але перш за все перевірте /topquiz або /start🚀""",
-    "help_ru": """🤖 Добро пожаловать в справку Telegram Bot! Вот доступные команды:
+    "help_ru": """🤖 Добро пожаловать в справку oneSitePls Bot! Вот доступные команды:
 
                  /help - Показать это справочное сообщение
+                 /start - Подробности возможностей
                  /reg - Установите свой никнейм и зарегистрируйтесь как Агент
                  /regClient - Установите свой никнейм и зарегистрируйтесь как Клиент
-                 /showskills - Показать навыки, которые вы можете изучить прямо сейчас
+                 /go - создать заявку на поддержку
                  /msg {псевдоним} {сообщение} - переслать сообщение пользователю
 
                  Но для начала зацени /topquiz или /start🚀""",
-    "en": """🤖 Welcome to our Telegram bot!
+    "en": """To start, we recommend diving into the most interesting part by executing the command "/topquiz".
+        This will show you the best available quizzes to test your knowledge and have some fun! 🎉
 
-        To get started, we recommend diving right into the fun by executing the "/topquiz" command. This will show you the best available quizzes to test your knowledge and have some entertainment! 🎉
-
-        If you prefer to explore other features of our bot, you can try the "/reg" or "/regClient" command. This command allows you to register as either an Agent or a Client. Agents will have access to additional commands like "/tickets" to check existing tickets, manage ticket status, assignees, and more. If you're a Client, you can create new tickets using the "/ticket" command.
+        If you prefer to explore other features of our bot, you can try the following commands:
+        - /start
+        - /help
+        - /reg or /regClient.
+        This command allows you to register as an Agent or a Client. Agents and Clients will have access to additional commands.
 
         Here are some commands you can use after registration:
+        - /go or /ticket: create a new support ticket.
+        - /estcho: view existing tickets.
+        - /estchoposkilam: view skills (UI words)
+        - /msg: send a message
 
-        For Agents:
-        - "/ticket" or "/go": Create a new ticket.
-        - "/estcho": View and manage existing tickets.
-        - "/assign": Assign tickets to specific agents.
-        - "/status": Change the status of a ticket.
-        - "/resolve": Resolve a ticket once it's done.
+        Soon:
+        - /assign: Assign tickets to specific agents.
+        - /status: Check the status of a ticket.
+        - /resolve: Resolve a ticket after it has been completed.
+        - /close: Close a ticket.
 
-        For Clients:
-        - "/ticket" or "/go": Create a new ticket.
-        - "/status": Check the status of your ticket.
-        - "/assignee": Assign a ticket to a specific agent.
+        So go ahead and explore the bot!
+        If you have any questions or need assistance, feel free to reach out to our support team. Enjoy your experience! 🚀""",
+    "es": """🤖 ¡Bienvenido a nuestro bot oneSitePls!
+         Para empezar, te recomendamos sumergirte en la parte más interesante ejecutando el comando "/topquiz".
+         ¡Esto le mostrará las mejores pruebas disponibles para evaluar sus conocimientos y divertirse! 🎉
 
-        Please note that some commands may require appropriate user roles or permissions.
+         Si prefiere explorar otras características de nuestro bot, puede probar los siguientes comandos:
+         - /start
+         - /help
+         - /reg o /regClient.
+         Este comando le permite registrarse como Agente o Cliente. Los Agentes y Clientes tendrán acceso a comandos adicionales.
 
-        So, go ahead and explore the bot! If you have any questions or need any assistance, feel free to reach out to our support team. Enjoy your experience! 🚀""",
-    "es": """🤖 ¡Bienvenido a nuestro bot de Telegram!
+         Aquí hay algunos comandos que puede usar después del registro:
+         - /go o /ticket: crea un nuevo ticket de soporte.
+         - /estcho: ver los tickets existentes.
+         - /estchoposkilam: ver habilidades (palabras de interfaz de usuario)
+         - /msg: enviar un mensaje
 
-        Para empezar, te recomendamos sumergirte de inmediato en la diversión ejecutando el comando "/topquiz". ¡Esto te mostrará los mejores cuestionarios disponibles para poner a prueba tus conocimientos y divertirte! 🎉
+         Pronto:
+         - /asignar: Asignar tickets a agentes específicos.
+         - /status: Verifica el estado de un ticket.
+         - /resolve: resuelve un ticket después de que se haya completado.
+         - /cerrar: Cerrar un ticket.
 
-        Si prefieres explorar otras funciones de nuestro bot, puedes probar el comando "/reg". Este comando te permite registrarte como Agente o Cliente. Los Agentes tendrán acceso a comandos adicionales como "/tickets" para consultar tickets existentes, gestionar el estado de los tickets, los asignados y más. Si eres un Cliente, puedes crear nuevos tickets usando el comando "/ticket".
+         ¡Así que adelante y explora el bot!
+         Si tiene alguna pregunta o necesita ayuda, no dude en comunicarse con nuestro equipo de soporte. ¡Disfruta de tu experiencia! 🚀""",
+    "ru" : """🤖 Добро пожаловать в наш oneSitePls бот!
 
-        Aquí tienes algunos comandos que puedes usar después de registrarte:
+         Для начала мы рекомендуем погрузиться в самое интересное, выполнив команду «/topquiz». 
+         Это покажет вам лучшие доступные викторины, чтобы проверить свои знания и немного развлечься! 🎉
 
-        Para los Agentes:
-        - "/ticket" or simply "/go": Crear un nuevo ticket.
-        - "/estcho": Ver y gestionar tickets existentes.
-        - "/estchoposkilam": show skills to perfect.
-        - "/assign": Asignar tickets a agentes específicos.
-        - "/status": Cambiar el estado de un ticket.
-        - "/resolve": Resolver un ticket una vez que esté completado.
-
-        Para los Clientes:
-        - "/ticket": Crear un nuevo ticket.
-        - "/status": Ver el estado de tu ticket.
-        - "/assignee": Asignar un ticket a un agente específico.
-
-        Ten en cuenta que algunos comandos pueden requerir roles o permisos de usuario adecuados.
-
-        ¡Así que adelante y explora nuestro bot! Si tienes alguna pregunta o necesitas ayuda, no dudes en ponerte en contacto con nuestro equipo de soporte. ¡Disfruta de tu experiencia! 🚀""",
-    "ru" : """🤖 Добро пожаловать в наш бот Telegram!
-
-         Для начала мы рекомендуем погрузиться в самое интересное, выполнив команду «/topquiz». Это покажет вам лучшие доступные викторины, чтобы проверить свои знания и немного развлечься! 🎉
-
-         Если вы предпочитаете изучить другие функции нашего бота, вы можете попробовать команду «/reg» или «/regClient». Эта команда позволяет вам зарегистрироваться в качестве Агента или Клиента. Агенты будут иметь доступ к дополнительным командам, таким как «/tickets», для проверки существующих заявок, управления статусом заявки, исполнителями и т. д. Если вы клиент, вы можете создавать новые билеты с помощью команды «/ticket».
+         Если вы предпочитаете изучить другие функции нашего бота, вы можете попробовать команду:
+         - "/start"
+         - "/help"
+         - "/reg" или "/regClient". 
+         Эта команда позволяет вам зарегистрироваться в качестве Агента или Клиента. Агенты и Клиенты будут иметь доступ к дополнительным командам.
 
          Вот некоторые команды, которые вы можете использовать после регистрации:
+         - "/go" или "/ticket": создать новую заявку на поддержку.
+         - "/estcho": просмотр существующих заявок.
+         - "/estchoposkilam": просмотр скилов (UI словечки)
+         - "/msg": отправить сообщение
 
-         Для агентов:
-         - "/ticket" или "/go": создать новый билет.
-         - "/estcho": просмотр и управление существующими заявками.
-         - "/estchoposkilam": просмотр скилов.
+         soon:
          - "/assign": Назначение заявок конкретным агентам.
-         - "/status": изменить статус заявки.
-         - "/resolve": разрешить заявку после ее завершения.
+         - "/status": проверить статус заявки.
+         - "/resolve": разрешить заявку после ее выполнения.
+         - "/close": завершить заявку.
 
-         Для клиентов:
-         - "/ticket" или "/go": создать новый билет.
-         - "/status": проверьте статус вашего билета.
-         - "/assignee": назначить билет конкретному агенту.
 
-         Обратите внимание, что для некоторых команд могут потребоваться соответствующие роли пользователей или разрешения.
-
-         Итак, вперед, исследуйте бота! Если у вас есть какие-либо вопросы или вам нужна помощь, не стесняйтесь обращаться к нашей команде поддержки. Наслаждайтесь своим опытом! 🚀""",
+         Итак, вперед, исследуйте бота! 
+         Если у вас есть какие-либо вопросы или вам нужна помощь, не стесняйтесь обращаться к нашей команде поддержки. Наслаждайтесь своим опытом! 🚀""",
     
-    "uk" : """🤖 Ласкаво просимо до нашого Telegram-бота!
+    "uk" : """🤖 Ласкаво просимо до нашого бота oneSitePls!
 
-         Щоб розпочати, ми рекомендуємо відразу зануритися в розваги, виконавши команду "/topquiz". Це покаже вам найкращі доступні тести, щоб перевірити свої знання та трохи розважитися! 🎉
+         Для початку рекомендуємо зануритися в найцікавіше, виконавши команду "/topquiz".
+         Це покаже вам найкращі доступні тести, щоб перевірити свої знання та трохи повеселитися! 🎉
 
-         Якщо ви бажаєте дослідити інші функції нашого бота, ви можете спробувати команду "/reg" або "/regClient". Ця команда дозволяє вам зареєструватися як агент або клієнт. Агенти матимуть доступ до додаткових команд, таких як "/tickets", щоб перевіряти наявні заявки, керувати статусом заявок, правонаступниками тощо. Якщо ви Клієнт, ви можете створити нові квитки за допомогою команди "/ticket".
+         Якщо ви віддаєте перевагу досліджувати інші функції нашого бота, ви можете спробувати такі команди:
+         - /start
+         - /help
+         - /reg або /regClient.
+         Ця команда дозволяє зареєструватися як Агент або Клієнт. Агенти та клієнти матимуть доступ до додаткових команд.
 
          Ось кілька команд, якими можна скористатися після реєстрації:
+         - /go або /ticket: створити нову заявку в службу підтримки.
+         - /estcho: переглянути існуючі квитки.
+         - /estchoposkilam: навички перегляду (слова інтерфейсу користувача)
+         - /msg: відправити повідомлення
 
-         Для агентів:
-         - "/ticket" або "/go": створити новий квиток.
-         - "/estcho": перегляд наявних квитків і керування ними.
-         - "/assign": призначити квитки певним агентам.
-         - "/status": змінити статус квитка.
-         - "/resolve": Вирішити заявку, коли це буде зроблено.
+         незабаром:
+         - /assign: призначити квитки певним агентам.
+         - /status: перевірити статус квитка.
+         - /resolve: Вирішити заявку після її завершення.
+         - /close: закрити заявку.
 
-         Для клієнтів:
-         - "/ticket" або "/go": створити новий квиток.
-         - "/status": перевірити статус вашого квитка.
-         - "/assignee": призначити квиток певному агенту.
-
-         Зауважте, що деякі команди можуть потребувати відповідних ролей користувача або дозволів.
-
-         Отже, продовжуйте досліджувати бота! Якщо у вас виникли запитання або вам потрібна допомога, зверніться до нашої служби підтримки. Насолоджуйтесь враженнями! 🚀""",
+         Тож продовжуйте досліджувати бота!
+         Якщо у вас виникли запитання або вам потрібна допомога, зверніться до нашої служби підтримки. Насолоджуйтесь враженнями! 🚀""",
     "Россияen" : "Russia",
     "Россияuk" : "Росія",
     "Россияru" : "Россия",

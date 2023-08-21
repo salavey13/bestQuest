@@ -1,5 +1,5 @@
 #Let's add the inline buttons to the bot to provide multiple choices for the quiz questions. Additionally, we'll add buttons to start the quiz for the top 13 skills and a button to show all available skills. Here's the updated code:
-from db.db import ConnectionPool, get_skill_id_by_skill_name, get_random_question_for_skill, with_connection
+from db.db import ConnectionPool, get_skill_id_by_skill_name, get_random_question_for_skill, get_agent_statistics_by_id, update_agent_rating, with_connection
 import random
 import greetings
 import data_scraping.search_helper
@@ -17,9 +17,10 @@ async def start_quiz(update: Update, context: CallbackContext, connection_pool: 
     # Find the skill_id based on the skill_name (assuming you have a 'skills' table)
     skill_id = get_skill_id_by_skill_name(connection_pool, skill_name)
 
-#######################################
-# TODO get rating from db:) stat = db.db.
-############################################
+    #######################################
+    #get rating from db:) 
+    stat = get_agent_statistics_by_id(connection_pool, update.effective_user.id)
+    ############################################
 
     if skill_id != "":
         question, a, fa, clue_ru, clue_en, a_en, fa_en = get_random_question_for_skill(connection_pool, skill_id)
@@ -33,8 +34,8 @@ async def start_quiz(update: Update, context: CallbackContext, connection_pool: 
         context.user_data['clue_en'] = clue_en
         
         if context.user_data.get('rating') is None :
-            context.user_data['rating'] = 0
-        context.user_data['public_rating'] = 0
+            context.user_data['rating'] = stat[0]
+        context.user_data['public_rating'] = stat[0]
         context.user_data['correct_count'] = 0
 
         # Send the question text with multiple choice options to the user
@@ -56,6 +57,11 @@ async def start_rating_quiz(update: Update, context: CallbackContext, connection
     # Find the skill_id based on the skill_name (assuming you have a 'skills' table)
     skill_id = get_skill_id_by_skill_name(connection_pool, skill_name)
 
+    #######################################
+    #get rating from db:) 
+    stat = get_agent_statistics_by_id(connection_pool, update.effective_user.id)
+    ############################################
+
     if skill_id != "":
         question, a, fa, clue_ru, clue_en, a_en, fa_en = get_random_question_for_skill(connection_pool, skill_id)
 
@@ -66,9 +72,9 @@ async def start_rating_quiz(update: Update, context: CallbackContext, connection
         context.user_data['fa'] = fa_en
         context.user_data['clue_ru'] = clue_ru
         context.user_data['clue_en'] = clue_en
-        context.user_data['rating'] = 0
+        context.user_data['rating'] = stat[0]
         if context.user_data.get('public_rating') is None :
-            context.user_data['public_rating'] = 0
+            context.user_data['public_rating'] = stat[0]
         context.user_data['correct_count'] = 0
 
         # Send the question text with multiple choice options to the user
@@ -88,16 +94,23 @@ async def handle_answer(update: Update, context: CallbackContext, connection_poo
     clue = context.user_data.get('clue_ru')
     skill_id = context.user_data.get('skill_id')
     correct_count = context.user_data.get('correct_count', 0)
-
+    
     if current_question:
         if user_answer[:5] == correct_answer.lower()[:5]:
             # Correct answer
             context.user_data.pop('clue_given', None)
             if "(" in context.user_data['a'] :
                 context.user_data['public_rating'] += 13
+                # update in db
+                update_agent_rating(connection_pool, update.effective_user.id, context.user_data['public_rating'])
             else :
                 context.user_data['rating'] += 13
+                # update in db
+                update_agent_rating(connection_pool, update.effective_user.id, context.user_data['rating'])
+
             context.user_data['correct_count'] += 1
+
+            
 
             if correct_count + 1 >= 5 and context.user_data['correct_count'] not in [10, 25, 50, 69, 100, 420]:
                 await update.message.reply_text(f"Вы ответили верно на {context.user_data['correct_count']} вопросов!\nMMR: {context.user_data['rating']}\npublic: {context.user_data['public_rating']}")
