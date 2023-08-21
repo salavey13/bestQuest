@@ -36,3 +36,6 @@ your_database.db
 telegram_bot/db/Agents.tsv
 telegram_bot/db/Agents.tsv.bk_orig
 telegram_bot/db/Agents.tsv.bk_to
+telegram_bot/data_scraping/__pycache__/extractplaylisttocsv.cpython-311.pyc
+telegram_bot/data_scraping/text_processing/__pycache__/text_helper.cpython-311.pyc
+telegram_bot/data_scraping/text_processing/__pycache__/__init__.cpython-311.pyc
