@@ -63,11 +63,10 @@ translations = {
         - /estchoposkilam: view skills (UI words)
         - /msg: send a message
 
-        Soon:
-        - /assign: Assign tickets to specific agents.
-        - /status: Check the status of a ticket.
-        - /resolve: Resolve a ticket after it has been completed.
-        - /close: Close a ticket.
+        - /get {ticket_id} - assign yourself to ticket
+        - /do {ticket_id} - start progress
+        - /finish {ticket_id} - finish ticket
+        - /promote {ticket_id} - promote ticket
 
         So go ahead and explore the bot!
         If you have any questions or need assistance, feel free to reach out to our support team. Enjoy your experience! 🚀""",
@@ -81,11 +80,10 @@ translations = {
          - /reg o /regClient.
          Este comando le permite registrarse como Agente o Cliente. Los Agentes y Clientes tendrán acceso a comandos adicionales.
 
-         Aquí hay algunos comandos que puede usar después del registro:
-         - /go o /ticket: crea un nuevo ticket de soporte.
-         - /estcho: ver los tickets existentes.
-         - /estchoposkilam: ver habilidades (palabras de interfaz de usuario)
-         - /msg: enviar un mensaje
+         - /get {ticket_id} - asignarse a sí mismo al boleto
+         - /do {ticket_id} - iniciar el progreso
+         - /finish {ticket_id} - finaliza el ticket
+         - /promote {ticket_id} - promocionar entrada
 
          Pronto:
          - /asignar: Asignar tickets a agentes específicos.
@@ -112,11 +110,10 @@ translations = {
          - "/estchoposkilam": просмотр скилов (UI словечки)
          - "/msg": отправить сообщение
 
-         soon:
-         - "/assign": Назначение заявок конкретным агентам.
-         - "/status": проверить статус заявки.
-         - "/resolve": разрешить заявку после ее выполнения.
-         - "/close": завершить заявку.
+         - /get {ticket_id} - назначить себе билет
+         - /do {ticket_id} - начать прогресс
+         - /finish {ticket_id} - билет на финиш
+         - /promote {ticket_id} - продвигать билет
 
 
          Итак, вперед, исследуйте бота! 
@@ -139,11 +136,11 @@ translations = {
          - /estchoposkilam: навички перегляду (слова інтерфейсу користувача)
          - /msg: відправити повідомлення
 
-         незабаром:
-         - /assign: призначити квитки певним агентам.
-         - /status: перевірити статус квитка.
-         - /resolve: Вирішити заявку після її завершення.
-         - /close: закрити заявку.
+
+         - /get {ticket_id} - призначити себе квитку
+         - /do {ticket_id} - почати прогрес
+         - /finish {ticket_id} - закінчити тикет
+         - /promote {ticket_id} - рекламувати квиток
 
          Тож продовжуйте досліджувати бота!
          Якщо у вас виникли запитання або вам потрібна допомога, зверніться до нашої служби підтримки. Насолоджуйтесь враженнями! 🚀""",

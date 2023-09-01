@@ -668,7 +668,7 @@ result = extract_subtitles(start_time, end_time, response.text)
 ##!#!
 print("\n", result)
 ##Segmentation
-result = text_segmentation(result)
+#result = text_segmentation(result)
 #print("\n", result)
     # tokenizer = TextTilingTokenizer()
     # tiles = tokenizer.tokenize(result)

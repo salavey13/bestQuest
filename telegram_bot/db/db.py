@@ -752,12 +752,12 @@ def get_site_by_id(connection: Connection, site_id):
 
 #3. Functions for the "SupportAgents" table:
 @with_connection
-def create_support_agent(connection: Connection, agent_id, nickname, discord, skills, price_map, achievements, verification_status, blue_checkmark, chat_id, number_of_executed_tickets, positive_reviews, lang):
+def create_support_agent(connection: Connection, agent_id, nickname, discord, skills, price_map, achievements, verification_status, blue_checkmark, MMR, number_of_executed_tickets, positive_reviews, lang):
     c = connection.cursor()
     c.execute('''
-        INSERT INTO SupportAgents (Agent_ID, Nickname, Discord, Skills, Price_Map, Achievements, Verification_Status, Blue_Checkmark, Chat_ID, Number_of_Executed_Tickets, Positive_Reviews, Preferred_Lang)
+        INSERT INTO SupportAgents (Agent_ID, Nickname, Discord, Skills, Price_Map, Achievements, Verification_Status, Blue_Checkmark, MMR, Number_of_Executed_Tickets, Positive_Reviews, Preferred_Lang)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (agent_id, nickname, discord, skills, price_map, achievements, verification_status, blue_checkmark, chat_id, number_of_executed_tickets, positive_reviews, lang))
+    ''', (agent_id, nickname, discord, skills, price_map, achievements, verification_status, blue_checkmark, MMR, number_of_executed_tickets, positive_reviews, lang))
     # Save changes and return True to indicate successful update
     connection.commit()
     return True
@@ -1159,22 +1159,22 @@ def main():
     # # Create the SupportTickets table
     ##########################
     #connection_pool.create_table('''
-    connection_pool.REcreate_table("SupportTickets", '''
-        CREATE TABLE IF NOT EXISTS SupportTickets (
-            Ticket_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            Assigned_Agent_ID INTEGER,
-            Client_ID INTEGER,
-            Site_ID INTEGER,
-            Priority TEXT,
-            State TEXT,
-            Description TEXT,
-            Comments TEXT,
-            History TEXT,
-            FOREIGN KEY (Assigned_Agent_ID) REFERENCES SupportAgents (Agent_ID),
-            FOREIGN KEY (Client_ID) REFERENCES Clients (Client_ID),
-            FOREIGN KEY (Site_ID) REFERENCES Site (Site_ID)
-        )
-    ''')
+    # connection_pool.REcreate_table("SupportTickets", '''
+    #     CREATE TABLE IF NOT EXISTS SupportTickets (
+    #         Ticket_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    #         Assigned_Agent_ID INTEGER,
+    #         Client_ID INTEGER,
+    #         Site_ID INTEGER,
+    #         Priority TEXT,
+    #         State TEXT,
+    #         Description TEXT,
+    #         Comments TEXT,
+    #         History TEXT,
+    #         FOREIGN KEY (Assigned_Agent_ID) REFERENCES SupportAgents (Agent_ID),
+    #         FOREIGN KEY (Client_ID) REFERENCES Clients (Client_ID),
+    #         FOREIGN KEY (Site_ID) REFERENCES Site (Site_ID)
+    #     )
+    # ''')
     data = get_data(connection_pool, "SupportTickets") 
     print(data)
 

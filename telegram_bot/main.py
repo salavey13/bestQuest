@@ -124,7 +124,7 @@ async def prestart(update: Update, context: ContextTypes.DEFAULT_TYPE, connectio
     # Check whether it's a new user - check existing agents and clients
     user = db.db.get_support_agent_by_id(connection_pool, update.effective_user.id)
 #    user = None
-    if user == None :
+    if user == None : 
         user = db.db.get_client_by_id(connection_pool, update._effective_user.id)
         if user == None :
             if update.message.text == "/start":
@@ -223,7 +223,7 @@ async def prestart(update: Update, context: ContextTypes.DEFAULT_TYPE, connectio
 async def agressor(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if update.effective_user and update.effective_user.id in blocked_users:
         logger.warning(f"Blocked user {update.effective_user.name} attempted to access command: {update.message.text}")
-        return
+        return ConversationHandler.END
     message = update.message.text
     
     if (message == "Россия" or  message == "Russia" or message == "Росія" ):
@@ -309,9 +309,9 @@ async def discord(update: Update, context: ContextTypes.DEFAULT_TYPE, connection
         nickname = context.user_data.get('nickname')
     
     if context.user_data.get('isClient') == True :
-        db.db.create_client(connection_pool, update.effective_user.id, nickname, user_discord, "no description", "UI", "NONEXISTENT", update.message.chat_id, "0", "0", update._effective_user.language_code)
+        db.db.create_client(connection_pool, update.effective_user.id, nickname, user_discord, "no description", "UI", "NONEXISTENT", 0, "0", "0", update._effective_user.language_code)
     else :
-        db.db.create_support_agent(connection_pool, update.effective_user.id, nickname, user_discord, "UI", "just4training", "first 13 club", "Approved as Founder", "TRUE", update.message.chat_id, "0", "0", update._effective_user.language_code)
+        db.db.create_support_agent(connection_pool, update.effective_user.id, nickname, user_discord, "UI", "just4training", "first 13 club", "Approved as Founder", "TRUE", 0, "0", "0", update._effective_user.language_code)
     
     logger.info("%d is IN like %s, discord: %s", update.effective_user.id, nickname, user_discord)
 
