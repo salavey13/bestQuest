@@ -666,7 +666,7 @@ end_time = best_chapter_end
 result = extract_subtitles(start_time, end_time, response.text)
 #!#!#!#!#!#SELENIUM DETECTED BY TINYWOW( 
 ##!#!
-print("\n", result)
+print("\n\n\n\nSTART ALL\n\n\n\n\n", result)
 ##Segmentation
 #result = text_segmentation(result)
 #print("\n", result)
@@ -806,11 +806,23 @@ best_dict = json.loads(page_best_moment_url.text)
 ######################################################################################
 ## WHAAAAT - save gisto as map and spread to raitings of chapters ALLL OF THEM!!!!!!!!
 ######################################################################################
-if best_dict['items'][0]['mostReplayed'] is not None :
-    besttimestamp = best_dict['items'][0]['mostReplayed']['heatMarkersDecorations'][0]['timedMarkerDecorationRenderer']['decorationTimeMillis']
-    #!#!#for heatMarker in best_dict['items'][0]['mostReplayed']['heatMarkers']:
-        #!#!#!#!print(heatMarker)
-    print("BestMoment_Timestamp", best_dict['items'][0]['mostReplayed']['heatMarkersDecorations'][0]['timedMarkerDecorationRenderer']['decorationTimeMillis'])
+if best_dict['items'][0]['mostReplayed'] is not None and n == 2:
+    i = 1
+    for moment in best_dict['items'][0]['mostReplayed']['timedMarkerDecorations']:
+        besttimestamp = moment['visibleTimeRangeStartMillis']
+        #!#!#for heatMarker in best_dict['items'][0]['mostReplayed']['heatMarkers']:#['markers']
+            #!print(heatMarker)
+        print("BestMoment_Timestamp ", i, besttimestamp/1000)
+        i = i + 1
+        best_chapter_name, best_chapter_start, best_chapter_end = extract_best_chapter(page_info.text, besttimestamp)
+
+
+        print("\n\tTime Range:", convert_seconds_to_timestamp(best_chapter_start), ' - ', convert_seconds_to_timestamp(best_chapter_end))
+        print("\n\toff Best Chapter ", i, " Name:", best_chapter_name)
+        #!#!print("\n", result)
+        result = extract_subtitles(best_chapter_start, best_chapter_end, response.text)
+        #!#!#!#!#!#SELENIUM DETECTED BY TINYWOW( 
+        print("\n\tBest Chapter Text:\n\n", result)
 else :
     print("\tNo BestMoment set(")
 print("\n\n######### actual start ###################")
