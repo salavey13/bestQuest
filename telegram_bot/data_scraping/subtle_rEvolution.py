@@ -777,11 +777,17 @@ chapters_info = requests.get(chapters_url)
 
 chapters_dict = json.loads(chapters_info.text)
 # try:
-print("\tOfficial Chapters:")
+print("\t\nOfficial Chapters:\n")
+i = 1
 for chapter in chapters_dict["items"][0]["chapters"]["chapters"] : 
-    print("\t", convert_seconds_to_timestamp(chapter["time"]), chapter["title"])
-    if chapter["thumbnails"][1]["url"].split('?')[0] != img_url_main :
-        print("\t\t", chapter["thumbnails"][1]["url"], "\n")
+    print(str(i)+") ",convert_seconds_to_timestamp(chapter["time"]), chapter["title"])
+    i = i + 1
+# i = 1
+print("\t\n\nThumbnails: (dsbld)\n")
+# for chapter in chapters_dict["items"][0]["chapters"]["chapters"] : 
+#     #if chapter["thumbnails"][1]["url"].split('?')[0] != img_url_main :
+#     print(str(i)+") ", chapter["thumbnails"][1]["url"])
+#     i = i + 1
 
 # except:
     # print("\t hui")
@@ -809,50 +815,55 @@ best_dict = json.loads(page_best_moment_url.text)
 if best_dict['items'][0]['mostReplayed'] is not None and n == 2:
     i = 1
     for moment in best_dict['items'][0]['mostReplayed']['timedMarkerDecorations']:
-        besttimestamp = moment['visibleTimeRangeStartMillis']
+        besttimestamp = int(moment['visibleTimeRangeStartMillis']/1000)
         #!#!#for heatMarker in best_dict['items'][0]['mostReplayed']['heatMarkers']:#['markers']
             #!print(heatMarker)
-        print("BestMoment_Timestamp ", i, besttimestamp/1000)
+        print("\n\n\tBestMoment", i, str(convert_seconds_to_timestamp(besttimestamp)))
         i = i + 1
-        best_chapter_name, best_chapter_start, best_chapter_end = extract_best_chapter(page_info.text, besttimestamp)
+        best_chapter_name, best_chapter_start, best_chapter_end = extract_best_chapter(page_info.text, besttimestamp*1000)
 
-
-        print("\n\tTime Range:", convert_seconds_to_timestamp(best_chapter_start), ' - ', convert_seconds_to_timestamp(best_chapter_end))
-        print("\n\toff Best Chapter ", i, " Name:", best_chapter_name)
+        print("\tDirect Link:", "youtube.com/watch?v=" + vidId + "&t=" + str(besttimestamp))
+        print("\tTime Range:", convert_seconds_to_timestamp(best_chapter_start), ' - ', convert_seconds_to_timestamp(best_chapter_end))
+        print("\tOff BestChapter" + str(i) + "\n", "\t\tName:", best_chapter_name)
+        print("\t\tDirect Link:", "youtube.com/watch&v=" + vidId + "&t=" + str(best_chapter_start))
         #!#!print("\n", result)
         result = extract_subtitles(best_chapter_start, best_chapter_end, response.text)
         #!#!#!#!#!#SELENIUM DETECTED BY TINYWOW( 
-        print("\n\tBest Chapter Text:\n\n", result)
+        print("\t\tText:\n", result)
+    exit()
 else :
     print("\tNo BestMoment set(")
-print("\n\n######### actual start ###################")
 
-#start_time = convert_timestamp_to_seconds('00:05')
-#end_time = convert_timestamp_to_seconds('00:30')
+    print("\n\n######### default ###################")
+    print("######### default ###################")
+    print("######### default ###################")
 
-start_time = best_chapter_start
-end_time = best_chapter_end
-##!#!# result = extract_chapters_by_questions(start_time, end_time, response.text)
-best_chapter_name, best_chapter_start, best_chapter_end = extract_best_chapter(page_info.text, besttimestamp)
+    #start_time = convert_timestamp_to_seconds('00:05')
+    #end_time = convert_timestamp_to_seconds('00:30')
 
-
-############### WHAAAATTTTT ########################
-# Split the text into subtitles
-#subtitles = re.split(r'(?<=[.!?])\s+', page_info.text)
-
-############### \WHAAAATTTTT ########################
-print("\n\tTime Range:", convert_seconds_to_timestamp(best_chapter_start), ' - ', convert_seconds_to_timestamp(best_chapter_end))
-print("\n\tBest Chapter Name:", best_chapter_name)
-#!#!print("\n", result)
-result = extract_subtitles(best_chapter_start, best_chapter_end, response.text)
-#!#!#!#!#!#SELENIUM DETECTED BY TINYWOW( 
-print("\n\tBest Chapter Text:\n\n", result)
+    start_time = best_chapter_start
+    end_time = best_chapter_end
+    ##!#!# result = extract_chapters_by_questions(start_time, end_time, response.text)
+    best_chapter_name, best_chapter_start, best_chapter_end = extract_best_chapter(page_info.text, besttimestamp)
 
 
+    ############### WHAAAATTTTT ########################
+    # Split the text into subtitles
+    #subtitles = re.split(r'(?<=[.!?])\s+', page_info.text)
+
+    ############### \WHAAAATTTTT ########################
+    print("\n\tTime Range:", convert_seconds_to_timestamp(best_chapter_start), ' - ', convert_seconds_to_timestamp(best_chapter_end))
+    print("\n\tBest Chapter Name:", best_chapter_name)
+    #!#!print("\n", result)
+    result = extract_subtitles(best_chapter_start, best_chapter_end, response.text)
+    #!#!#!#!#!#SELENIUM DETECTED BY TINYWOW( 
+    print("\n\tBest Chapter Text:\n\n", result)
 
 
 
-
+exit()
+print("\n\n## continue? #")
+input()
 ##CHAPGEN
 #########
 print("\n\n - Input rephrased with questions, for chapter extraction:?\n")
