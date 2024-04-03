@@ -95,12 +95,12 @@
 # | "paragraph"     |                    |                                |                                     |            |            |                              | ... |
 
 #from bs4 import BeautifulSoup
-from googletrans import Translator
+#from googletrans import Translator
 from googleapiclient.discovery import build
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By
+#from selenium import webdriver
+#from selenium.webdriver.support.ui import WebDriverWait
+#from selenium.webdriver.support import expected_conditions as EC
+#from selenium.webdriver.common.by import By
 import csv
 import requests
 import base64
@@ -110,10 +110,10 @@ import re
 from datetime import datetime
 import time
 import webbrowser
-import nltk
-from nltk.tokenize import sent_tokenize
-from nltk.tokenize.punkt import PunktSentenceTokenizer
-from nltk.tokenize import TextTilingTokenizer
+#import nltk
+#from nltk.tokenize import sent_tokenize
+#from nltk.tokenize.punkt import PunktSentenceTokenizer
+#from nltk.tokenize import TextTilingTokenizer
 #NOTE" uncomment once to download models for text chapter parcer nltk.download()
 #import numpy as np
 #from fuzzywuzzy import fuzz
